@@ -8,7 +8,7 @@ class MealProvider with ChangeNotifier {
 
   // Fetch meal data from the backend
   Future<void> fetchMeals() async {
-    final url =
+    const url =
         'http://freepuppyservices.com:4444/meals'; // Replace with your backend URL
     final response = await http.get(Uri.parse(url));
 
@@ -26,7 +26,7 @@ class MealProvider with ChangeNotifier {
   // Update a meal's status
   Future<void> updateMeal(
       String dogName, String day, String meal, bool fed) async {
-    final url = 'http://freepuppyservices.com:4444/meals';
+    const url = 'http://freepuppyservices.com:4444/meals';
     final body = json.encode({
       'dog': dogName,
       'day': day,
@@ -43,8 +43,7 @@ class MealProvider with ChangeNotifier {
     if (response.statusCode == 200) {
       fetchMeals(); // Refresh the meal data after update
     } else {
-      throw Exception(
-          'Failed to update meal: ' + response.statusCode.toString());
+      throw Exception('Failed to update meal: ${response.statusCode}');
     }
   }
 }

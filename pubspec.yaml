@@ -29,6 +29,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  firebase_core: ^2.10.0
   provider: ^6.0.0 # For state management
   http: ^0.13.3    # For API communication
   intl: ^0.17.0

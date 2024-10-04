@@ -12,25 +12,20 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  DateTime _currentDay = DateTime.now(); // Track the day being displayed
+  final List<String> _daysOfWeek = ['M', 'T', 'W', 'Th', 'F', 'S', 'S'];
+  late PageController _pageController;
+  int _currentPageIndex = 0;
   bool _isLoading = true;
   String? _errorMessage;
-
-  // Get the list of days in a week for cycling
-  final List<String> _daysOfWeek = [
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-    'Sunday'
-  ];
 
   @override
   void initState() {
     super.initState();
     _loadMeals();
+
+    // Set the initial page to today's index (Monday = 0, Sunday = 6)
+    _currentPageIndex = DateTime.now().weekday - 1; // Monday = 0, Sunday = 6
+    _pageController = PageController(initialPage: _currentPageIndex);
   }
 
   Future<void> _loadMeals() async {
@@ -47,57 +42,88 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  // Helper function to rotate between days of the week (Sunday to Monday and vice versa)
-  DateTime _addDays(DateTime date, int daysToAdd) {
-    return date.add(Duration(days: daysToAdd));
+  // Helper to get the week starting on Monday for the current date
+  DateTime _getMonday(DateTime currentDate) {
+    int daysToSubtract =
+        currentDate.weekday - 1; // Monday is 1, so subtract to get Monday
+    return currentDate.subtract(Duration(days: daysToSubtract));
   }
 
-  String _getDayLabel(DateTime date) {
-    DateTime today = DateTime.now();
-    DateTime yesterday = today.subtract(const Duration(days: 1));
-    DateTime tomorrow = today.add(const Duration(days: 1));
-
-    if (DateFormat('yyyy-MM-dd').format(date) ==
-        DateFormat('yyyy-MM-dd').format(today)) {
-      return "Today: ${DateFormat('MM/dd/yy').format(date)}";
-    } else if (DateFormat('yyyy-MM-dd').format(date) ==
-        DateFormat('yyyy-MM-dd').format(yesterday)) {
-      return "Yesterday: ${DateFormat('MM/dd/yy').format(date)}";
-    } else if (DateFormat('yyyy-MM-dd').format(date) ==
-        DateFormat('yyyy-MM-dd').format(tomorrow)) {
-      return "Tomorrow: ${DateFormat('MM/dd/yy').format(date)}";
-    } else {
-      return "${DateFormat('EEEE').format(date)}: ${DateFormat('MM/dd/yy').format(date)}";
-    }
+  // Helper to get the formatted date label (e.g., Monday: 09/30/24)
+  String _getDayLabel(DateTime currentDay) {
+    return "${DateFormat('EEEE').format(currentDay)}: ${DateFormat('MM/dd/yy').format(currentDay)}";
   }
 
   @override
   Widget build(BuildContext context) {
+    DateTime monday = _getMonday(DateTime.now());
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('BorkBook'),
+        title: const Text('Borkbook'),
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _errorMessage != null
-              ? Center(child: Text(_errorMessage!))
-              : Consumer<MealProvider>(
-                  builder: (context, mealProvider, _) {
-                    return PageView.builder(
-                      onPageChanged: (index) {
-                        setState(() {
-                          _currentDay = _addDays(DateTime.now(), index);
-                        });
-                      },
-                      itemBuilder: (context, index) {
-                        final dayToShow = _addDays(DateTime.now(), index % 7);
-                        final currentDayLabel = _getDayLabel(dayToShow);
-                        return _buildDayView(
-                            mealProvider, currentDayLabel, dayToShow);
-                      },
-                    );
-                  },
-                ),
+      body: Column(
+        children: [
+          _buildWeekBar(),
+          Expanded(
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _errorMessage != null
+                    ? Center(child: Text(_errorMessage!))
+                    : Consumer<MealProvider>(
+                        builder: (context, mealProvider, _) {
+                          return PageView.builder(
+                            controller: _pageController,
+                            itemCount: _daysOfWeek.length,
+                            onPageChanged: (index) {
+                              setState(() {
+                                _currentPageIndex = index;
+                              });
+                            },
+                            itemBuilder: (context, index) {
+                              DateTime dayToShow =
+                                  monday.add(Duration(days: index));
+                              final currentDayLabel = _getDayLabel(dayToShow);
+                              return _buildDayView(
+                                  mealProvider, currentDayLabel, dayToShow);
+                            },
+                          );
+                        },
+                      ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWeekBar() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: List.generate(_daysOfWeek.length, (index) {
+        return GestureDetector(
+          onTap: () {
+            setState(() {
+              _currentPageIndex = index;
+              _pageController.jumpToPage(index);
+            });
+          },
+          child: Container(
+            padding: const EdgeInsets.all(8.0),
+            decoration: BoxDecoration(
+              color:
+                  _currentPageIndex == index ? Colors.blue : Colors.transparent,
+              shape: BoxShape.circle,
+            ),
+            child: Text(
+              _daysOfWeek[index],
+              style: TextStyle(
+                color: _currentPageIndex == index ? Colors.white : Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        );
+      }),
     );
   }
 
@@ -190,9 +216,10 @@ class _HomeScreenState extends State<HomeScreen> {
           boxShadow: isChecked
               ? [
                   const BoxShadow(
-                      color: Colors.black38,
-                      blurRadius: 5.0,
-                      offset: Offset(0, 3))
+                    color: Colors.black38,
+                    blurRadius: 5.0,
+                    offset: Offset(0, 3),
+                  ),
                 ]
               : null, // Depressed shadow effect when checked
         ),

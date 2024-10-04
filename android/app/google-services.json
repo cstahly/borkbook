@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1007477594478",
+    "project_id": "borkbook-35422",
+    "storage_bucket": "borkbook-35422.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1007477594478:android:3a11682047e1049f0cc97f",
+        "android_client_info": {
+          "package_name": "com.freepuppyservices.borkbook"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBT1MS-vs9doiYugVdSGijyDlif3PUCeLc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

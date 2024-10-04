@@ -1,4 +1,4 @@
-package com.example.borkbook
+package com.freepuppyservices.borkbook
 
 import io.flutter.embedding.android.FlutterActivity
 
