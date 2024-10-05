@@ -14,6 +14,7 @@ app.use(cors({
 
 const mealsFile = './meals.json';
 let meals = {};
+let lastUpdated = new Date(); // Track the last updated time
 
 // Load meal data from the file at server startup
 const loadMealsFromFile = async () => {
@@ -58,12 +59,18 @@ app.get('/meals', (req, res) => {
   res.json(meals);
 });
 
+// Route to get the last time the meals were updated
+app.get('/last-updated', (req, res) => {
+  res.json({ last_updated: lastUpdated });
+});
+
 // Route to update the meal data
 app.post('/meals', async (req, res) => {
   const { dog, day, meal, fed } = req.body;
 
   if (meals[dog] && meals[dog][day] && typeof meals[dog][day][meal] !== 'undefined') {
     meals[dog][day][meal] = fed;
+    lastUpdated = new Date();  // Update the last updated timestamp
 
     // Save the updated meal data to file
     await saveMealsToFile();
@@ -80,4 +87,3 @@ loadMealsFromFile().then(() => {
     console.log(`Server is running on port ${port}`);
   });
 });
-
