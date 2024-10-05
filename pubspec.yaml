@@ -31,6 +31,7 @@ dependencies:
     sdk: flutter
   firebase_core: ^2.15.0
   firebase_auth: any
+  firebase_auth_web: ^5.8.13
   cloud_firestore: any
   provider: ^6.0.0 # For state management
   http: ^0.13.3    # For API communication
