@@ -1,0 +1,56 @@
+{
+  "Precious": {
+    "Monday": {
+      "breakfast": true,
+      "lunch": true,
+      "dinner": true
+    },
+    "Tuesday": {
+      "breakfast": true,
+      "lunch": true,
+      "dinner": true
+    },
+    "Wednesday": {
+      "breakfast": true,
+      "lunch": true,
+      "dinner": true
+    },
+    "Thursday": {
+      "breakfast": true,
+      "lunch": true,
+      "dinner": true
+    },
+    "Friday": {
+      "breakfast": false,
+      "lunch": true,
+      "dinner": true
+    }
+  },
+  "Tucker": {
+    "Monday": {
+      "breakfast": true,
+      "lunch": true,
+      "dinner": true
+    },
+    "Tuesday": {
+      "breakfast": true,
+      "lunch": true,
+      "dinner": true
+    },
+    "Wednesday": {
+      "breakfast": true,
+      "lunch": true,
+      "dinner": true
+    },
+    "Thursday": {
+      "breakfast": true,
+      "lunch": true,
+      "dinner": true
+    },
+    "Friday": {
+      "breakfast": true,
+      "lunch": true,
+      "dinner": true
+    }
+  }
+}
