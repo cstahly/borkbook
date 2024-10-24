@@ -56,11 +56,13 @@ const saveMealsToFile = async () => {
 
 // Route to get the meal data
 app.get('/meals', (req, res) => {
+  console.log(`Meal request: ${JSON.stringify(req.body)}`);
   res.json(meals);
 });
 
 // Route to get the last time the meals were updated
 app.get('/last-updated', (req, res) => {
+  console.log(`Last update request: ${JSON.stringify(req.body)}`);
   res.json({ last_updated: lastUpdated });
 });
 
@@ -68,7 +70,13 @@ app.get('/last-updated', (req, res) => {
 app.post('/meals', async (req, res) => {
   const { dog, day, meal, fed } = req.body;
 
-  if (meals[dog] && meals[dog][day] && typeof meals[dog][day][meal] !== 'undefined') {
+  console.log(`Meal update: ${JSON.stringify(req.body)}`);
+
+  console.log('meals[dog]: '+JSON.stringify(meals[dog]));
+  console.log('meals[dog][day]: '+JSON.stringify(meals[dog][day]));
+  console.log('typeof: ' + typeof meals[dog][day][meal]);
+
+  if (meals[dog] && meals[dog][day] ) { //&& typeof meals[dog][day][meal] !== 'undefined') {
     meals[dog][day][meal] = fed;
     lastUpdated = new Date();  // Update the last updated timestamp
 

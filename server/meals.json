@@ -2,55 +2,85 @@
   "Precious": {
     "Monday": {
       "breakfast": true,
-      "lunch": true,
-      "dinner": true
+      "lunch": false,
+      "dinner": false,
+      "Breakfast": true,
+      "Lunch": true,
+      "Dinner": true
     },
     "Tuesday": {
       "breakfast": true,
-      "lunch": true,
-      "dinner": true
+      "lunch": false,
+      "dinner": false,
+      "Breakfast": true,
+      "Dinner": true,
+      "Lunch": true
     },
     "Wednesday": {
       "breakfast": true,
       "lunch": true,
-      "dinner": true
+      "dinner": false,
+      "Breakfast": true,
+      "Lunch": true,
+      "Dinner": true
     },
     "Thursday": {
-      "breakfast": true,
-      "lunch": true,
-      "dinner": true
+      "breakfast": false,
+      "lunch": false,
+      "dinner": false,
+      "Breakfast": true,
+      "Lunch": true,
+      "Dinner": true
     },
     "Friday": {
       "breakfast": false,
       "lunch": true,
-      "dinner": true
+      "dinner": true,
+      "Dinner": false,
+      "Breakfast": false,
+      "Lunch": false
     }
   },
   "Tucker": {
     "Monday": {
       "breakfast": true,
-      "lunch": true,
-      "dinner": true
+      "lunch": false,
+      "dinner": false,
+      "Dinner": true,
+      "Lunch": true,
+      "Breakfast": true
     },
     "Tuesday": {
       "breakfast": true,
-      "lunch": true,
-      "dinner": true
+      "lunch": false,
+      "dinner": false,
+      "Breakfast": true,
+      "Lunch": true,
+      "Dinner": true
     },
     "Wednesday": {
       "breakfast": true,
       "lunch": true,
-      "dinner": true
+      "dinner": false,
+      "Breakfast": true,
+      "Lunch": true,
+      "Dinner": true
     },
     "Thursday": {
       "breakfast": true,
-      "lunch": true,
-      "dinner": true
+      "lunch": false,
+      "dinner": false,
+      "Dinner": true,
+      "Lunch": true,
+      "Breakfast": true
     },
     "Friday": {
       "breakfast": true,
       "lunch": true,
-      "dinner": true
+      "dinner": true,
+      "Lunch": false,
+      "Breakfast": false,
+      "Dinner": false
     }
   }
 }
