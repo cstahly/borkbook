@@ -66,11 +66,11 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyBI_6yjLP1QtX_SM18CJKJ1mr9pIT1QpXU',
-    appId: '1:1007477594478:ios:43c7ac51e402e5a50cc97f',
+    appId: '1:1007477594478:ios:c40e14d4f26f62590cc97f',
     messagingSenderId: '1007477594478',
     projectId: 'borkbook-35422',
     storageBucket: 'borkbook-35422.appspot.com',
-    iosBundleId: 'com.freepuppyservices.borkbook',
+    iosBundleId: 'com.freepuppyservices.borkbook-dev',
   );
 
 }
