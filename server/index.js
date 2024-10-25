@@ -31,6 +31,8 @@ const loadMealsFromFile = async () => {
         "Wednesday": { "breakfast": true, "lunch": true, "dinner": true },
         "Thursday": { "breakfast": true, "lunch": true, "dinner": false },
         "Friday": { "breakfast": false, "lunch": false, "dinner": false },
+        "Saturday": { "breakfast": true, "lunch": true, "dinner": false },
+        "Sunday": { "breakfast": false, "lunch": false, "dinner": false },
       },
       "Tucker": {
         "Monday": { "breakfast": true, "lunch": true, "dinner": true },
@@ -38,6 +40,8 @@ const loadMealsFromFile = async () => {
         "Wednesday": { "breakfast": true, "lunch": true, "dinner": true },
         "Thursday": { "breakfast": true, "lunch": true, "dinner": false },
         "Friday": { "breakfast": false, "lunch": false, "dinner": false },
+        "Saturday": { "breakfast": true, "lunch": true, "dinner": false },
+        "Sunday": { "breakfast": false, "lunch": false, "dinner": false },
       }
     };
     await saveMealsToFile();
@@ -70,11 +74,11 @@ app.get('/last-updated', (req, res) => {
 app.post('/meals', async (req, res) => {
   const { dog, day, meal, fed } = req.body;
 
-  console.log(`Meal update: ${JSON.stringify(req.body)}`);
+  // console.log(`Meal update: ${JSON.stringify(req.body)}`);
 
-  console.log('meals[dog]: '+JSON.stringify(meals[dog]));
-  console.log('meals[dog][day]: '+JSON.stringify(meals[dog][day]));
-  console.log('typeof: ' + typeof meals[dog][day][meal]);
+  // console.log('meals[dog]: '+JSON.stringify(meals[dog]));
+  // console.log('meals[dog][day]: '+JSON.stringify(meals[dog][day]));
+  // console.log('typeof: ' + typeof meals[dog][day][meal]);
 
   if (meals[dog] && meals[dog][day] ) { //&& typeof meals[dog][day][meal] !== 'undefined') {
     meals[dog][day][meal] = fed;
