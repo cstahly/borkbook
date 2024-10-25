@@ -9,7 +9,9 @@ class HomeScreen extends StatefulWidget {
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen>
+    with SingleTickerProviderStateMixin {
+  TabController? _tabController; // Use a nullable type
   // The current day selected (e.g., 0 for Monday, 1 for Tuesday, etc.)
   int _currentDayIndex = DateTime.now().weekday % 7;
 
@@ -28,10 +30,26 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    // Initialize the TabController in initState
+    _tabController = TabController(length: _weekDays.length, vsync: this);
+    _tabController!.index = _currentDayIndex; // Set the initial day index
+
+    _tabController!.addListener(() {
+      setState(() {
+        _currentDayIndex = _tabController!.index;
+      });
+    });
+
     // Automatically refresh meals on startup
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _refreshMeals();
     });
+  }
+
+  @override
+  void dispose() {
+    _tabController?.dispose();
+    super.dispose();
   }
 
   Future<void> _refreshMeals() async {
@@ -44,38 +62,42 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_tabController == null) {
+      return const Scaffold(
+        body: Center(
+          child:
+              CircularProgressIndicator(), // Show loading indicator while TabController is being initialized
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('BorkBook'),
+        bottom: TabBar(
+          controller: _tabController,
+          indicatorColor: Colors.blue, // Default indicator color
+          labelColor: const Color.fromARGB(255, 0, 0, 0), // Active tab color
+          unselectedLabelColor:
+              const Color.fromARGB(153, 101, 101, 101), // Inactive tab color
+          tabs: List.generate(_weekDays.length, (index) {
+            return Tab(
+              text: _weekDays[index],
+            );
+          }),
+        ),
       ),
       body: RefreshIndicator(
         onRefresh: _refreshMeals,
         child: Column(
           children: [
-            Spacer(flex: 1),
-            // Week bar to display days of the week
-            _buildWeekBar(),
-            // Expanded widget containing a SingleChildScrollView
+            // Expanded widget containing the TabBarView
             Expanded(
-              flex: 4,
-              child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                child: SizedBox(
-                  height: MediaQuery.of(context).size.height -
-                      kToolbarHeight, // Adjust height
-                  child: PageView.builder(
-                    controller: PageController(initialPage: _currentDayIndex),
-                    onPageChanged: (index) {
-                      setState(() {
-                        _currentDayIndex = index;
-                      });
-                    },
-                    itemCount: 7, // 7 days in a week
-                    itemBuilder: (context, index) {
-                      return _buildMealsForDay(context, index);
-                    },
-                  ),
-                ),
+              child: TabBarView(
+                controller: _tabController,
+                children: List.generate(7, (index) {
+                  return _buildMealsForDay(context, index);
+                }),
               ),
             ),
           ],
@@ -84,56 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-// Helper function to build the week bar
-  Widget _buildWeekBar() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: List.generate(_weekDays.length, (index) {
-          return GestureDetector(
-            onTap: () {
-              setState(() {
-                _currentDayIndex = index;
-              });
-            },
-            child: Container(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
-              decoration: BoxDecoration(
-                color: _currentDayIndex == index
-                    ? Colors.brown[200]
-                    : Colors.grey[300], // Tan for selected, gray for unselected
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: _currentDayIndex == index
-                    ? [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.5),
-                          spreadRadius: 2,
-                          blurRadius: 5,
-                          offset: const Offset(0, 00),
-                        ),
-                      ]
-                    : [],
-              ),
-              child: Text(
-                _weekDays[index],
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: _currentDayIndex == index
-                      ? Colors.brown[800]
-                      : Colors.black, // Darker brown for active day
-                ),
-              ),
-            ),
-          );
-        }),
-      ),
-    );
-  }
-
-// Helper function to display meals for a given day
+  // Helper function to display meals for a given day
   Widget _buildMealsForDay(BuildContext context, int dayIndex) {
     return Consumer<MealProvider>(
       builder: (context, mealProvider, _) {
