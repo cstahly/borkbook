@@ -10,12 +10,11 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen>
-    with SingleTickerProviderStateMixin {
-  TabController? _tabController; // Use a nullable type
-  // The current day selected (e.g., 0 for Monday, 1 for Tuesday, etc.)
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
+  TabController? _tabController;
   int _currentDayIndex = DateTime.now().weekday % 7;
 
-  // Week days labels
+  // Weekdays labels
   final List<String> _weekDays = ['M', 'T', 'W', 'Th', 'F', 'S', 'Su'];
   final List<String> _fullWeekDays = [
     'Monday',
@@ -30,13 +29,15 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void initState() {
     super.initState();
-    // Initialize the TabController in initState
+    WidgetsBinding.instance.addObserver(this);
+
     _tabController = TabController(length: _weekDays.length, vsync: this);
-    _tabController!.index = _currentDayIndex; // Set the initial day index
+    _tabController!.index = _currentDayIndex;
 
     _tabController!.addListener(() {
       setState(() {
         _currentDayIndex = _tabController!.index;
+        _refreshMeals();
       });
     });
 
@@ -48,8 +49,17 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _tabController?.dispose();
     super.dispose();
+  }
+
+  // Refresh meals when the app is resumed
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _refreshMeals();
+    }
   }
 
   Future<void> _refreshMeals() async {
@@ -57,6 +67,7 @@ class _HomeScreenState extends State<HomeScreen>
       await Provider.of<MealProvider>(context, listen: false).fetchMeals();
     } catch (error) {
       print('Error refreshing meals: $error');
+      // Error handling is managed in the UI
     }
   }
 
@@ -65,8 +76,7 @@ class _HomeScreenState extends State<HomeScreen>
     if (_tabController == null) {
       return const Scaffold(
         body: Center(
-          child:
-              CircularProgressIndicator(), // Show loading indicator while TabController is being initialized
+          child: Text('Loading...'),
         ),
       );
     }
@@ -76,10 +86,9 @@ class _HomeScreenState extends State<HomeScreen>
         title: const Text('BorkBook'),
         bottom: TabBar(
           controller: _tabController,
-          indicatorColor: Colors.blue, // Default indicator color
-          labelColor: const Color.fromARGB(255, 0, 0, 0), // Active tab color
-          unselectedLabelColor:
-              const Color.fromARGB(153, 101, 101, 101), // Inactive tab color
+          indicatorColor: Colors.blue,
+          labelColor: Colors.white,
+          unselectedLabelColor: Colors.white60,
           tabs: List.generate(_weekDays.length, (index) {
             return Tab(
               text: _weekDays[index],
@@ -87,21 +96,11 @@ class _HomeScreenState extends State<HomeScreen>
           }),
         ),
       ),
-      body: RefreshIndicator(
-        onRefresh: _refreshMeals,
-        child: Column(
-          children: [
-            // Expanded widget containing the TabBarView
-            Expanded(
-              child: TabBarView(
-                controller: _tabController,
-                children: List.generate(7, (index) {
-                  return _buildMealsForDay(context, index);
-                }),
-              ),
-            ),
-          ],
-        ),
+      body: TabBarView(
+        controller: _tabController,
+        children: List.generate(7, (index) {
+          return _buildMealsForDay(context, index);
+        }),
       ),
     );
   }
@@ -110,31 +109,32 @@ class _HomeScreenState extends State<HomeScreen>
   Widget _buildMealsForDay(BuildContext context, int dayIndex) {
     return Consumer<MealProvider>(
       builder: (context, mealProvider, _) {
-        if (mealProvider.isLoading && mealProvider.meals.isEmpty) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
         if (mealProvider.error != null) {
           return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset('assets/tucker.png', width: 100, height: 100),
-                const SizedBox(height: 20),
-                Text(
-                  mealProvider.error ?? 'An error occurred',
-                  style: const TextStyle(color: Colors.red),
-                ),
-                const SizedBox(height: 20),
-                const Text('Communication error, drag down to retry'),
-              ],
+            child: GestureDetector(
+              onTap: () {
+                _refreshMeals();
+              },
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset('assets/tucker.png', width: 100, height: 100),
+                  const SizedBox(height: 20),
+                  Text(
+                    mealProvider.error ?? 'An error occurred',
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                  const SizedBox(height: 20),
+                  const Text('Tap the dog to retry'),
+                ],
+              ),
             ),
           );
         }
 
         if (mealProvider.meals.isEmpty) {
           return const Center(
-            child: Text('No meals available, drag down to refresh'),
+            child: Text('No meals available'),
           );
         }
 
@@ -142,7 +142,7 @@ class _HomeScreenState extends State<HomeScreen>
         String currentDay = _fullWeekDays[dayIndex];
         Map<String, Map<String, bool>> mealsForDay = {};
 
-        // Look for meals for this specific day in the data
+        // Extract meals for this specific day
         for (var meal in mealProvider.meals) {
           mealsForDay[meal.dogName] = meal.days[currentDay] ?? {};
         }
@@ -159,18 +159,17 @@ class _HomeScreenState extends State<HomeScreen>
             final tuckerFed = dogsFed['Tucker'] ?? false;
 
             return Padding(
-              padding: const EdgeInsets.only(
-                  bottom: 40.0), // Adds spacing between items
+              padding: const EdgeInsets.only(bottom: 40.0),
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.grey[200], // Light gray/tan background color
-                  borderRadius: BorderRadius.circular(15), // Curved corners
+                  color: Colors.grey[200], // Light gray/tan background
+                  borderRadius: BorderRadius.circular(15),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.grey.withOpacity(0.5), // Soft shadow
                       spreadRadius: 1,
                       blurRadius: 5,
-                      offset: const Offset(0, 3), // Shadow position
+                      offset: const Offset(0, 3),
                     ),
                   ],
                 ),
@@ -217,22 +216,19 @@ class _HomeScreenState extends State<HomeScreen>
 
   // Helper function to build the dog icon with gradient and shading
   Widget _buildDogIcon(String dogName, bool isFed, VoidCallback onTap) {
-    String assetPath = dogName == 'Precious'
-        ? 'assets/precious.png'
-        : 'assets/tucker.png'; // Choose the correct image
+    String assetPath =
+        dogName == 'Precious' ? 'assets/precious.png' : 'assets/tucker.png';
 
     return GestureDetector(
-      onTap: onTap, // Make the icon clickable
+      onTap: onTap,
       child: Container(
-        width: 80, // Set the width of the circle
-        height: 80, // Set the height of the circle
+        width: 80,
+        height: 80,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           border: Border.all(
-            color: isFed
-                ? Colors.green
-                : Colors.red, // Border color based on state
-            width: 3, // Border thickness
+            color: isFed ? Colors.green : Colors.red,
+            width: 3,
           ),
           gradient: isFed
               ? const RadialGradient(
@@ -248,11 +244,12 @@ class _HomeScreenState extends State<HomeScreen>
           boxShadow: isFed
               ? [
                   const BoxShadow(
-                      color: Colors.black38,
-                      blurRadius: 5.0,
-                      offset: Offset(0, 3))
+                    color: Colors.black38,
+                    blurRadius: 5.0,
+                    offset: Offset(0, 3),
+                  )
                 ]
-              : null, // Depressed shadow effect when checked
+              : null,
         ),
         child: ClipOval(
           child: Image.asset(
