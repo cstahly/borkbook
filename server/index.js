@@ -80,8 +80,10 @@ app.post('/meals', async (req, res) => {
   // console.log('meals[dog][day]: '+JSON.stringify(meals[dog][day]));
   // console.log('typeof: ' + typeof meals[dog][day][meal]);
 
+  const properMeal = meal.charAt(0).toUpperCase() + meal.slice(1);
+
   if (meals[dog] && meals[dog][day] ) { //&& typeof meals[dog][day][meal] !== 'undefined') {
-    meals[dog][day][meal] = fed;
+    meals[dog][day][properMeal] = fed;
     lastUpdated = new Date();  // Update the last updated timestamp
 
     // Save the updated meal data to file

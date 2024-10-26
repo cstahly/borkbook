@@ -46,8 +46,8 @@ class _HomeScreenState extends State<HomeScreen>
 
     _tabController.addListener(() {
       setState(() {
-        _currentDayIndex = _tabController.index;
         _refreshMeals();
+        _currentDayIndex = _tabController.index;
       });
     });
 
