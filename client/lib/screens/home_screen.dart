@@ -11,8 +11,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
-  TabController? _tabController;
-  int _currentDayIndex = DateTime.now().weekday % 7;
+  late TabController _tabController;
+  int _currentDayIndex = (DateTime.now().weekday % 7) - 1;
 
   // Weekdays labels
   final List<String> _weekDays = ['M', 'T', 'W', 'Th', 'F', 'S', 'Su'];
@@ -26,17 +26,27 @@ class _HomeScreenState extends State<HomeScreen>
     'Sunday'
   ];
 
+  // Define the color palette
+  final Color _backgroundColor = Color(0xFFFAF9F6); // Off-white/light gray
+  final Color _appBarColor = Color(0xFF5D4037); // Brown
+  final Color _tabBarColor = Color(0xFF8D6E63); // Lighter brown
+  final Color _accentColor = Color(0xFF562220); // Fuchsia
+  final Color _activeTabTextColor = Colors.white;
+  final Color _inactiveTabTextColor = Colors.white70;
+  final Color _cardColor = Color(0xFFEEEEEE); // Light gray for cards
+  final Color _textColor = Color(0xFF3E2723); // Dark brown for text
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
 
     _tabController = TabController(length: _weekDays.length, vsync: this);
-    _tabController!.index = _currentDayIndex;
+    _tabController.index = _currentDayIndex;
 
-    _tabController!.addListener(() {
+    _tabController.addListener(() {
       setState(() {
-        _currentDayIndex = _tabController!.index;
+        _currentDayIndex = _tabController.index;
         _refreshMeals();
       });
     });
@@ -50,7 +60,7 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _tabController?.dispose();
+    _tabController.dispose();
     super.dispose();
   }
 
@@ -73,27 +83,49 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   Widget build(BuildContext context) {
-    if (_tabController == null) {
-      return const Scaffold(
-        body: Center(
-          child: Text('Loading...'),
-        ),
-      );
-    }
-
     return Scaffold(
+      backgroundColor: _backgroundColor, // Set the background color
       appBar: AppBar(
         title: const Text('BorkBook'),
-        bottom: TabBar(
-          controller: _tabController,
-          indicatorColor: Colors.blue,
-          labelColor: Colors.white,
-          unselectedLabelColor: Colors.white60,
-          tabs: List.generate(_weekDays.length, (index) {
-            return Tab(
-              text: _weekDays[index],
-            );
-          }),
+        backgroundColor: _appBarColor, // Brown AppBar
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(48.0),
+          child: Container(
+            color: _tabBarColor, // Lighter brown for TabBar background
+            child: TabBar(
+              controller: _tabController,
+              indicatorColor: _accentColor,
+              labelColor: _activeTabTextColor,
+              unselectedLabelColor: _inactiveTabTextColor,
+              tabs: List.generate(_weekDays.length, (index) {
+                bool isToday = index == (DateTime.now().weekday % 7) - 1;
+                return Tab(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        _weekDays[index],
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      if (isToday)
+                        Container(
+                          margin: const EdgeInsets.only(top: 4),
+                          width: 6,
+                          height: 6,
+                          decoration: BoxDecoration(
+                            color: _accentColor,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                    ],
+                  ),
+                );
+              }),
+            ),
+          ),
         ),
       ),
       body: TabBarView(
@@ -147,68 +179,72 @@ class _HomeScreenState extends State<HomeScreen>
           mealsForDay[meal.dogName] = meal.days[currentDay] ?? {};
         }
 
-        return ListView(
-          padding: const EdgeInsets.all(16.0),
-          children: ['Breakfast', 'Lunch', 'Dinner'].map((mealType) {
-            final dogsFed = {
-              'Precious': mealsForDay['Precious']?[mealType] ?? false,
-              'Tucker': mealsForDay['Tucker']?[mealType] ?? false,
-            };
+        return Container(
+          color: _backgroundColor,
+          child: ListView(
+            padding: const EdgeInsets.all(16.0),
+            children: ['Breakfast', 'Lunch', 'Dinner'].map((mealType) {
+              final dogsFed = {
+                'Precious': mealsForDay['Precious']?[mealType] ?? false,
+                'Tucker': mealsForDay['Tucker']?[mealType] ?? false,
+              };
 
-            final preciousFed = dogsFed['Precious'] ?? false;
-            final tuckerFed = dogsFed['Tucker'] ?? false;
+              final preciousFed = dogsFed['Precious'] ?? false;
+              final tuckerFed = dogsFed['Tucker'] ?? false;
 
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 40.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey[200], // Light gray/tan background
-                  borderRadius: BorderRadius.circular(15),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.5), // Soft shadow
-                      spreadRadius: 1,
-                      blurRadius: 5,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: ListTile(
-                  contentPadding: const EdgeInsets.symmetric(vertical: 10.0),
-                  title: Center(
-                    child: Text(
-                      mealType,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
-                    ),
-                  ),
-                  subtitle: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      _buildDogIcon(
-                        'Precious',
-                        preciousFed,
-                        () {
-                          mealProvider.updateMeal(
-                              'Precious', currentDay, mealType, !preciousFed);
-                        },
-                      ),
-                      _buildDogIcon(
-                        'Tucker',
-                        tuckerFed,
-                        () {
-                          mealProvider.updateMeal(
-                              'Tucker', currentDay, mealType, !tuckerFed);
-                        },
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 40.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: _cardColor, // Light gray for cards
+                    borderRadius: BorderRadius.circular(15),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5), // Soft shadow
+                        spreadRadius: 1,
+                        blurRadius: 5,
+                        offset: const Offset(0, 3),
                       ),
                     ],
                   ),
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.symmetric(vertical: 10.0),
+                    title: Center(
+                      child: Text(
+                        mealType,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                          color: _textColor, // Dark brown for text
+                        ),
+                      ),
+                    ),
+                    subtitle: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _buildDogIcon(
+                          'Precious',
+                          preciousFed,
+                          () {
+                            mealProvider.updateMeal(
+                                'Precious', currentDay, mealType, !preciousFed);
+                          },
+                        ),
+                        _buildDogIcon(
+                          'Tucker',
+                          tuckerFed,
+                          () {
+                            mealProvider.updateMeal(
+                                'Tucker', currentDay, mealType, !tuckerFed);
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-            );
-          }).toList(),
+              );
+            }).toList(),
+          ),
         );
       },
     );
@@ -224,32 +260,40 @@ class _HomeScreenState extends State<HomeScreen>
       child: Container(
         width: 80,
         height: 80,
+        foregroundDecoration: BoxDecoration(
+          color: isFed ? Colors.transparent : Colors.grey,
+          backgroundBlendMode: BlendMode.saturation,
+        ),
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           border: Border.all(
-            color: isFed ? Colors.green : Colors.red,
+            color: isFed
+                ? const Color(0xFFFFD700)
+                : const Color.fromARGB(255, 85, 85, 85),
             width: 3,
           ),
           gradient: isFed
-              ? const RadialGradient(
-                  colors: [Colors.yellowAccent, Colors.orangeAccent],
-                  center: Alignment(-0.5, -0.6),
+              ? RadialGradient(
+                  colors: [
+                    Colors.white,
+                    const Color.fromRGBO(255, 243, 175, 1),
+//                    _accentColor.withOpacity(0.7),
+                  ],
+                  center: const Alignment(-0.5, -0.6),
                   radius: 0.6,
                 )
               : const RadialGradient(
-                  colors: [Colors.grey, Colors.white],
+                  colors: [Colors.blueGrey, Colors.grey],
                   center: Alignment(-0.5, -0.6),
                   radius: 0.6,
                 ),
-          boxShadow: isFed
-              ? [
-                  const BoxShadow(
-                    color: Colors.black38,
-                    blurRadius: 5.0,
-                    offset: Offset(0, 3),
-                  )
-                ]
-              : null,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.3),
+              blurRadius: 5.0,
+              offset: const Offset(0, 3),
+            ),
+          ],
         ),
         child: ClipOval(
           child: Image.asset(

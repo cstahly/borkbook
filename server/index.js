@@ -26,22 +26,22 @@ const loadMealsFromFile = async () => {
     console.error('Could not load meal data from file, initializing default data.', err);
     meals = {
       "Precious": {
-        "Monday": { "breakfast": true, "lunch": true, "dinner": true },
-        "Tuesday": { "breakfast": true, "lunch": true, "dinner": true },
-        "Wednesday": { "breakfast": true, "lunch": true, "dinner": true },
-        "Thursday": { "breakfast": true, "lunch": true, "dinner": false },
-        "Friday": { "breakfast": false, "lunch": false, "dinner": false },
-        "Saturday": { "breakfast": true, "lunch": true, "dinner": false },
-        "Sunday": { "breakfast": false, "lunch": false, "dinner": false },
+        "Monday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+        "Tuesday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+        "Wednesday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+        "Thursday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+        "Friday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+        "Saturday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+        "Sunday": { "Breakfast": false, "Lunch": false, "Dinner": false },
       },
       "Tucker": {
-        "Monday": { "breakfast": true, "lunch": true, "dinner": true },
-        "Tuesday": { "breakfast": true, "lunch": true, "dinner": true },
-        "Wednesday": { "breakfast": true, "lunch": true, "dinner": true },
-        "Thursday": { "breakfast": true, "lunch": true, "dinner": false },
-        "Friday": { "breakfast": false, "lunch": false, "dinner": false },
-        "Saturday": { "breakfast": true, "lunch": true, "dinner": false },
-        "Sunday": { "breakfast": false, "lunch": false, "dinner": false },
+        "Monday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+        "Tuesday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+        "Wednesday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+        "Thursday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+        "Friday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+        "Saturday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+        "Sunday": { "Breakfast": false, "Lunch": false, "Dinner": false },
       }
     };
     await saveMealsToFile();
