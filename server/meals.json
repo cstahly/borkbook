@@ -1,85 +1,75 @@
 {
   "Precious": {
     "Monday": {
-      "breakfast": true,
-      "lunch": false,
-      "dinner": false,
-      "Breakfast": true,
-      "Lunch": true,
-      "Dinner": true
+      "Breakfast": false,
+      "Lunch": false,
+      "Dinner": false
     },
     "Tuesday": {
-      "breakfast": true,
-      "lunch": false,
-      "dinner": false,
-      "Breakfast": true,
-      "Dinner": true,
-      "Lunch": true
+      "Breakfast": false,
+      "Lunch": false,
+      "Dinner": false
     },
     "Wednesday": {
-      "breakfast": true,
-      "lunch": true,
-      "dinner": false,
       "Breakfast": true,
-      "Lunch": true,
-      "Dinner": true
+      "Lunch": false,
+      "Dinner": false
     },
     "Thursday": {
-      "breakfast": false,
-      "lunch": false,
-      "dinner": false,
-      "Breakfast": true,
-      "Lunch": true,
-      "Dinner": true
+      "Breakfast": false,
+      "Lunch": false,
+      "Dinner": false
     },
     "Friday": {
-      "breakfast": false,
-      "lunch": true,
-      "dinner": true,
-      "Dinner": false,
       "Breakfast": false,
-      "Lunch": false
+      "Lunch": false,
+      "Dinner": false
+    },
+    "Saturday": {
+      "Breakfast": false,
+      "Lunch": false,
+      "Dinner": false
+    },
+    "Sunday": {
+      "Breakfast": false,
+      "Lunch": false,
+      "Dinner": false
     }
   },
   "Tucker": {
     "Monday": {
-      "breakfast": true,
-      "lunch": false,
-      "dinner": false,
-      "Dinner": true,
-      "Lunch": true,
-      "Breakfast": true
+      "Breakfast": false,
+      "Lunch": false,
+      "Dinner": false
     },
     "Tuesday": {
-      "breakfast": true,
-      "lunch": false,
-      "dinner": false,
-      "Breakfast": true,
-      "Lunch": true,
-      "Dinner": true
+      "Breakfast": false,
+      "Lunch": false,
+      "Dinner": false
     },
     "Wednesday": {
-      "breakfast": true,
-      "lunch": true,
-      "dinner": false,
       "Breakfast": true,
-      "Lunch": true,
-      "Dinner": true
+      "Lunch": false,
+      "Dinner": false
     },
     "Thursday": {
-      "breakfast": true,
-      "lunch": false,
-      "dinner": false,
-      "Dinner": true,
-      "Lunch": true,
-      "Breakfast": true
+      "Breakfast": false,
+      "Lunch": false,
+      "Dinner": false
     },
     "Friday": {
-      "breakfast": true,
-      "lunch": true,
-      "dinner": true,
-      "Lunch": false,
       "Breakfast": false,
+      "Lunch": false,
+      "Dinner": false
+    },
+    "Saturday": {
+      "Breakfast": false,
+      "Lunch": false,
+      "Dinner": false
+    },
+    "Sunday": {
+      "Breakfast": false,
+      "Lunch": false,
       "Dinner": false
     }
   }

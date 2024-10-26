@@ -1,15 +1,18 @@
+const https = require('https');
+const http = require('http'); // For redirecting HTTP to HTTPS
 const express = require('express');
-const cors = require('cors'); // Import cors middleware
+const cors = require('cors');
 const fs = require('fs').promises;
+const fsSync = require('fs'); // for reading sync SSL files
 const app = express();
 const port = 4444;
 
 app.use(express.json());
 
-// Use CORS middleware to allow cross-origin requests
+// Use CORS middleware
 app.use(cors({
-  origin: '*', // You can specify a specific origin instead of '*' for more security
-  methods: ['GET', 'POST'], // Allow only specific HTTP methods if needed
+  origin: 'https://freepuppyservices.com', // Replace '*' with a specific origin for security
+  methods: ['GET', 'POST'],
 }));
 
 const mealsFile = './meals.json';
@@ -60,7 +63,7 @@ const saveMealsToFile = async () => {
 
 // Route to get the meal data
 app.get('/meals', (req, res) => {
-  console.log(`Meal request: ${JSON.stringify(req.body)}`);
+  console.log(`Meal request: ${JSON.stringify(meals)}`);
   res.json(meals);
 });
 
@@ -73,12 +76,6 @@ app.get('/last-updated', (req, res) => {
 // Route to update the meal data
 app.post('/meals', async (req, res) => {
   const { dog, day, meal, fed } = req.body;
-
-  // console.log(`Meal update: ${JSON.stringify(req.body)}`);
-
-  // console.log('meals[dog]: '+JSON.stringify(meals[dog]));
-  // console.log('meals[dog][day]: '+JSON.stringify(meals[dog][day]));
-  // console.log('typeof: ' + typeof meals[dog][day][meal]);
 
   const properMeal = meal.charAt(0).toUpperCase() + meal.slice(1);
 
@@ -95,9 +92,19 @@ app.post('/meals', async (req, res) => {
   }
 });
 
+// Load your SSL certificate and key
+const privateKey = fsSync.readFileSync('/var/www/ssh/freepuppyservices.com.key', 'utf8');
+const certificate = fsSync.readFileSync('/var/www/ssh/fullchain.cer', 'utf8');
+
+const credentials = { key: privateKey, cert: certificate };
+
+// Start the HTTPS server
+https.createServer(credentials, app).listen(port, () => {
+  console.log(`HTTPS Server running on port ${port}`);
+});
+
 // Load meal data before starting the server
 loadMealsFromFile().then(() => {
-  app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-  });
+  console.log(`Server is set up and ready.`);
 });
+
