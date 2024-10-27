@@ -1,20 +1,53 @@
+const https = require('https');
 const express = require('express');
-const cors = require('cors'); // Import cors middleware
+const cors = require('cors');
 const fs = require('fs').promises;
+const fsSync = require('fs'); // Use for reading SSL files
 const app = express();
 const port = 4444;
 
 app.use(express.json());
 
-// Use CORS middleware to allow cross-origin requests
+// Use CORS middleware
 app.use(cors({
-  origin: '*', // You can specify a specific origin instead of '*' for more security
-  methods: ['GET', 'POST'], // Allow only specific HTTP methods if needed
+  origin: 'https://freepuppyservices.com', // Specify the allowed origin for security
+  methods: ['GET', 'POST'],
 }));
 
 const mealsFile = './meals.json';
 let meals = {};
-let lastUpdated = new Date(); // Track the last updated time
+let lastUpdated = new Date();
+
+app.get('/reset', async (req, res) => {
+  meals = {
+    "Precious": {
+      "Monday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+      "Tuesday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+      "Wednesday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+      "Thursday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+      "Friday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+      "Saturday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+      "Sunday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+    },
+    "Tucker": {
+      "Monday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+      "Tuesday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+      "Wednesday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+      "Thursday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+      "Friday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+      "Saturday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+      "Sunday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+    }
+  };
+
+  try {
+    await fs.writeFile(mealsFile, JSON.stringify(meals, null, 2), 'utf-8');
+    res.json({ message: 'Meals reset successfully!' });
+  } catch (err) {
+    console.error('Error resetting meals file:', err);
+    res.status(500).json({ message: 'Failed to reset meals file.' });
+  }
+});
 
 // Load meal data from the file at server startup
 const loadMealsFromFile = async () => {
@@ -58,13 +91,12 @@ const saveMealsToFile = async () => {
   }
 };
 
-// Route to get the meal data
+// Routes to get the meal data and last update time
 app.get('/meals', (req, res) => {
-  console.log(`Meal request: ${JSON.stringify(req.body)}`);
+  console.log(`Meal request: ${JSON.stringify(meals)}`);
   res.json(meals);
 });
 
-// Route to get the last time the meals were updated
 app.get('/last-updated', (req, res) => {
   console.log(`Last update request: ${JSON.stringify(req.body)}`);
   res.json({ last_updated: lastUpdated });
@@ -74,17 +106,14 @@ app.get('/last-updated', (req, res) => {
 app.post('/meals', async (req, res) => {
   const { dog, day, meal, fed } = req.body;
 
-  // console.log(`Meal update: ${JSON.stringify(req.body)}`);
-
-  // console.log('meals[dog]: '+JSON.stringify(meals[dog]));
-  // console.log('meals[dog][day]: '+JSON.stringify(meals[dog][day]));
-  // console.log('typeof: ' + typeof meals[dog][day][meal]);
-
   const properMeal = meal.charAt(0).toUpperCase() + meal.slice(1);
 
-  if (meals[dog] && meals[dog][day] ) { //&& typeof meals[dog][day][meal] !== 'undefined') {
+  console.log('meals[dog]: '+JSON.stringify(meals[dog]));
+  console.log('meals[dog][day]: '+JSON.stringify(meals[dog][day]));
+
+  if (meals[dog] && meals[dog][day]) {
     meals[dog][day][properMeal] = fed;
-    lastUpdated = new Date();  // Update the last updated timestamp
+    lastUpdated = new Date();
 
     // Save the updated meal data to file
     await saveMealsToFile();
@@ -95,9 +124,19 @@ app.post('/meals', async (req, res) => {
   }
 });
 
+// Load SSL certificates
+const sslOptions = {
+  key: fsSync.readFileSync('/etc/letsencrypt/live/freepuppyservices.com/privkey.pem', 'utf8'),
+  cert: fsSync.readFileSync('/etc/letsencrypt/live/freepuppyservices.com/fullchain.pem', 'utf8')
+};
+
+// Start the HTTPS server
+https.createServer(sslOptions, app).listen(port, () => {
+  console.log(`HTTPS Server running on port ${port}`);
+});
+
 // Load meal data before starting the server
 loadMealsFromFile().then(() => {
-  app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-  });
+  console.log(`Server is set up and ready.`);
 });
+
