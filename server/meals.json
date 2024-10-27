@@ -1,26 +1,16 @@
 {
   "Precious": {
     "Monday": {
-<<<<<<< HEAD
-<<<<<<< HEAD
-      "Breakfast": false,
-      "Lunch": false,
-      "Dinner": false
-    },
-    "Tuesday": {
-      "Breakfast": false,
-      "Lunch": false,
-      "Dinner": false
-=======
-=======
->>>>>>> 6437ecb (fix capitalization bug; finalize https cert location (certbot))
       "Breakfast": true,
       "Lunch": true,
       "Dinner": true
     },
     "Tuesday": {
-<<<<<<< HEAD
-=======
+      "Breakfast": true,
+      "Lunch": true,
+      "Dinner": true
+    },
+    "Wednesday": {
       "Breakfast": true,
       "Lunch": true,
       "Dinner": true
@@ -38,29 +28,6 @@
       "Dinner": false
     },
     "Thursday": {
-<<<<<<< HEAD
-<<<<<<< HEAD
-      "Breakfast": false,
-      "Lunch": false,
-      "Dinner": false
-    },
-    "Friday": {
-      "Breakfast": false,
-      "Lunch": false,
-      "Dinner": false
-    },
-    "Saturday": {
-      "Breakfast": false,
-      "Lunch": false,
-      "Dinner": false
-    },
-    "Sunday": {
-      "Breakfast": false,
-      "Lunch": false,
-      "Dinner": false
-=======
-=======
->>>>>>> 6437ecb (fix capitalization bug; finalize https cert location (certbot))
       "Breakfast": true,
       "Lunch": true,
       "Dinner": true
@@ -79,26 +46,15 @@
       "Breakfast": true,
       "Lunch": true,
       "Dinner": true
-<<<<<<< HEAD
->>>>>>> 6437ecb (fix capitalization bug; finalize https cert location (certbot))
-=======
->>>>>>> 6437ecb (fix capitalization bug; finalize https cert location (certbot))
     }
   },
   "Tucker": {
     "Monday": {
-<<<<<<< HEAD
-<<<<<<< HEAD
-      "Breakfast": false,
-      "Lunch": false,
-      "Dinner": false
+      "Breakfast": true,
+      "Lunch": true,
+      "Dinner": true
     },
     "Tuesday": {
-      "Breakfast": false,
-      "Lunch": false,
-      "Dinner": false
-=======
-=======
       "Breakfast": true,
       "Lunch": true,
       "Dinner": true
@@ -116,34 +72,6 @@
 >>>>>>> 6437ecb (fix capitalization bug; finalize https cert location (certbot))
     },
     "Wednesday": {
-<<<<<<< HEAD
-      "Breakfast": true,
-      "Lunch": false,
-      "Dinner": false
-    },
-    "Thursday": {
-<<<<<<< HEAD
-      "Breakfast": false,
-      "Lunch": false,
-      "Dinner": false
-    },
-    "Friday": {
-      "Breakfast": false,
-      "Lunch": false,
-      "Dinner": false
-    },
-    "Saturday": {
-      "Breakfast": false,
-      "Lunch": false,
-      "Dinner": false
-    },
-    "Sunday": {
-      "Breakfast": false,
-      "Lunch": false,
-      "Dinner": false
-=======
-=======
->>>>>>> 6437ecb (fix capitalization bug; finalize https cert location (certbot))
       "Breakfast": true,
       "Lunch": true,
       "Dinner": true
@@ -170,10 +98,6 @@
       "Breakfast": true,
       "Lunch": true,
       "Dinner": true
-<<<<<<< HEAD
->>>>>>> 6437ecb (fix capitalization bug; finalize https cert location (certbot))
-=======
->>>>>>> 6437ecb (fix capitalization bug; finalize https cert location (certbot))
     }
   }
 }

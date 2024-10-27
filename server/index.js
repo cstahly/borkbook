@@ -1,23 +1,8 @@
 const https = require('https');
-<<<<<<< HEAD
-<<<<<<< HEAD
-const http = require('http'); // For redirecting HTTP to HTTPS
-const express = require('express');
-const cors = require('cors');
-const fs = require('fs').promises;
-const fsSync = require('fs'); // for reading sync SSL files
-=======
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs').promises;
 const fsSync = require('fs'); // Use for reading SSL files
->>>>>>> 6437ecb (fix capitalization bug; finalize https cert location (certbot))
-=======
-const express = require('express');
-const cors = require('cors');
-const fs = require('fs').promises;
-const fsSync = require('fs'); // Use for reading SSL files
->>>>>>> 6437ecb (fix capitalization bug; finalize https cert location (certbot))
 const app = express();
 const port = 4444;
 
@@ -25,15 +10,7 @@ app.use(express.json());
 
 // Use CORS middleware
 app.use(cors({
-<<<<<<< HEAD
-<<<<<<< HEAD
-  origin: 'https://freepuppyservices.com', // Replace '*' with a specific origin for security
-=======
   origin: 'https://freepuppyservices.com', // Specify the allowed origin for security
->>>>>>> 6437ecb (fix capitalization bug; finalize https cert location (certbot))
-=======
-  origin: 'https://freepuppyservices.com', // Specify the allowed origin for security
->>>>>>> 6437ecb (fix capitalization bug; finalize https cert location (certbot))
   methods: ['GET', 'POST'],
 }));
 
@@ -147,19 +124,6 @@ app.post('/meals', async (req, res) => {
   }
 });
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// Load your SSL certificate and key
-const privateKey = fsSync.readFileSync('/var/www/ssh/freepuppyservices.com.key', 'utf8');
-const certificate = fsSync.readFileSync('/var/www/ssh/fullchain.cer', 'utf8');
-
-const credentials = { key: privateKey, cert: certificate };
-
-// Start the HTTPS server
-https.createServer(credentials, app).listen(port, () => {
-=======
-=======
->>>>>>> 6437ecb (fix capitalization bug; finalize https cert location (certbot))
 // Load SSL certificates
 const sslOptions = {
   key: fsSync.readFileSync('/etc/letsencrypt/live/freepuppyservices.com/privkey.pem', 'utf8'),
@@ -168,10 +132,6 @@ const sslOptions = {
 
 // Start the HTTPS server
 https.createServer(sslOptions, app).listen(port, () => {
-<<<<<<< HEAD
->>>>>>> 6437ecb (fix capitalization bug; finalize https cert location (certbot))
-=======
->>>>>>> 6437ecb (fix capitalization bug; finalize https cert location (certbot))
   console.log(`HTTPS Server running on port ${port}`);
 });
 
