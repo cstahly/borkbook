@@ -2,6 +2,7 @@
   "Precious": {
     "Monday": {
 <<<<<<< HEAD
+<<<<<<< HEAD
       "Breakfast": false,
       "Lunch": false,
       "Dinner": false
@@ -11,11 +12,21 @@
       "Lunch": false,
       "Dinner": false
 =======
+=======
+>>>>>>> 6437ecb (fix capitalization bug; finalize https cert location (certbot))
       "Breakfast": true,
       "Lunch": true,
       "Dinner": true
     },
     "Tuesday": {
+<<<<<<< HEAD
+=======
+      "Breakfast": true,
+      "Lunch": true,
+      "Dinner": true
+    },
+    "Wednesday": {
+>>>>>>> 6437ecb (fix capitalization bug; finalize https cert location (certbot))
       "Breakfast": true,
       "Lunch": true,
       "Dinner": true
@@ -27,6 +38,7 @@
       "Dinner": false
     },
     "Thursday": {
+<<<<<<< HEAD
 <<<<<<< HEAD
       "Breakfast": false,
       "Lunch": false,
@@ -47,6 +59,8 @@
       "Lunch": false,
       "Dinner": false
 =======
+=======
+>>>>>>> 6437ecb (fix capitalization bug; finalize https cert location (certbot))
       "Breakfast": true,
       "Lunch": true,
       "Dinner": true
@@ -65,12 +79,16 @@
       "Breakfast": true,
       "Lunch": true,
       "Dinner": true
+<<<<<<< HEAD
+>>>>>>> 6437ecb (fix capitalization bug; finalize https cert location (certbot))
+=======
 >>>>>>> 6437ecb (fix capitalization bug; finalize https cert location (certbot))
     }
   },
   "Tucker": {
     "Monday": {
 <<<<<<< HEAD
+<<<<<<< HEAD
       "Breakfast": false,
       "Lunch": false,
       "Dinner": false
@@ -80,6 +98,13 @@
       "Lunch": false,
       "Dinner": false
 =======
+=======
+      "Breakfast": true,
+      "Lunch": true,
+      "Dinner": true
+    },
+    "Tuesday": {
+>>>>>>> 6437ecb (fix capitalization bug; finalize https cert location (certbot))
       "Breakfast": true,
       "Lunch": true,
       "Dinner": true
@@ -91,6 +116,7 @@
 >>>>>>> 6437ecb (fix capitalization bug; finalize https cert location (certbot))
     },
     "Wednesday": {
+<<<<<<< HEAD
       "Breakfast": true,
       "Lunch": false,
       "Dinner": false
@@ -116,10 +142,20 @@
       "Lunch": false,
       "Dinner": false
 =======
+=======
+>>>>>>> 6437ecb (fix capitalization bug; finalize https cert location (certbot))
       "Breakfast": true,
       "Lunch": true,
       "Dinner": true
     },
+<<<<<<< HEAD
+=======
+    "Thursday": {
+      "Breakfast": true,
+      "Lunch": true,
+      "Dinner": true
+    },
+>>>>>>> 6437ecb (fix capitalization bug; finalize https cert location (certbot))
     "Friday": {
       "Breakfast": true,
       "Lunch": true,
@@ -134,6 +170,9 @@
       "Breakfast": true,
       "Lunch": true,
       "Dinner": true
+<<<<<<< HEAD
+>>>>>>> 6437ecb (fix capitalization bug; finalize https cert location (certbot))
+=======
 >>>>>>> 6437ecb (fix capitalization bug; finalize https cert location (certbot))
     }
   }
