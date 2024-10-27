@@ -1,0 +1,42 @@
+desc "Distribute Web build via SCP"
+lane :web do
+    Dir.chdir("../web") do # Adjust this path to your project root if needed
+      # Confirm the current directory
+      puts "Current working directory: #{Dir.pwd}"
+  
+      # Build and deploy Web via SCP
+      sh("flutter build web --base-href '/borkbook/'")
+  
+      # Confirm the current directory
+     puts "Current working directory (##2##): #{Dir.pwd}"
+  
+      # Check if the build directory exists
+      if Dir.exist?("../build/web")
+        sh("scp -r ../build/web/* ec2-user@freepuppyservices.com:/var/www/html/borkbook")
+    else
+        UI.user_error!("Web build failed: 'build/web' directory not found.")
+      end
+    end
+  end
+
+desc "Distribute iOS build to Firebase App Distribution"
+lane :ios do
+  Dir.chdir("../ios") do
+    sh("fastlane distribute")
+  end
+end
+
+desc "Distribute Android build to Firebase App Distribution"
+lane :android do
+    Dir.chdir("../android") do
+    sh("fastlane distribute")
+  end
+end
+
+desc "Distribute all platforms: Web, iOS, and Android"
+lane :all do
+  # Call each platform's distribute lane
+  web
+  ios
+  android
+end

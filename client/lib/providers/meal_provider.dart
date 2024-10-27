@@ -12,6 +12,25 @@ class MealProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
 
+  // Reset the meals data structure by calling the backend reset
+  Future<void> resetWeek() async {
+    const url = 'https://freepuppyservices.com:4444/reset';
+
+    try {
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        await fetchMeals(); // Refresh meals after reset
+      } else {
+        _error = 'Failed to reset meals: ${response.statusCode}';
+      }
+    } catch (e) {
+      _error = 'Failed to reset meals: $e';
+    }
+
+    notifyListeners();
+  }
+
   // Fetch meal data from the backend
   Future<void> fetchMeals() async {
     _isLoading = true; // Set loading to true when fetching starts
@@ -19,7 +38,7 @@ class MealProvider with ChangeNotifier {
     notifyListeners(); // Notify listeners that loading has started
 
     const url =
-        'http://freepuppyservices.com:4444/meals'; // Replace with your backend URL
+        'https://freepuppyservices.com:4444/meals'; // Replace with your backend URL
     try {
       final response = await http.get(Uri.parse(url));
 
@@ -70,7 +89,7 @@ class MealProvider with ChangeNotifier {
   // Update a meal's status
   Future<void> updateMeal(
       String dogName, String day, String meal, bool fed) async {
-    const url = 'http://freepuppyservices.com:4444/meals';
+    const url = 'https://freepuppyservices.com:4444/meals';
     final body = json.encode({
       'dog': dogName,
       'day': day,

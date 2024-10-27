@@ -12,7 +12,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   late TabController _tabController;
-  int _currentDayIndex = (DateTime.now().weekday % 7) - 1;
+  int _currentDayIndex = (DateTime.now().weekday - 1 % 7);
 
   // Weekdays labels
   final List<String> _weekDays = ['M', 'T', 'W', 'Th', 'F', 'S', 'Su'];
@@ -30,7 +30,7 @@ class _HomeScreenState extends State<HomeScreen>
   final Color _backgroundColor = Color(0xFFFAF9F6); // Off-white/light gray
   final Color _appBarColor = Color(0xFF5D4037); // Brown
   final Color _tabBarColor = Color(0xFF8D6E63); // Lighter brown
-  final Color _accentColor = Color(0xFF562220); // Fuchsia
+  final Color _accentColor = Color.fromARGB(255, 116, 49, 47); // Fuchsia
   final Color _activeTabTextColor = Colors.white;
   final Color _inactiveTabTextColor = Colors.white70;
   final Color _cardColor = Color(0xFFEEEEEE); // Light gray for cards
@@ -81,13 +81,97 @@ class _HomeScreenState extends State<HomeScreen>
     }
   }
 
+  Future<bool> showAlertDialog(BuildContext context, String message) async {
+    // set up the buttons
+    Widget cancelButton = ElevatedButton(
+      child: Text("Cancel"),
+      onPressed: () {
+        // returnValue = false;
+        Navigator.of(context).pop(false);
+      },
+    );
+    Widget continueButton = ElevatedButton(
+      child: Text("Yes"),
+      onPressed: () {
+        Provider.of<MealProvider>(context, listen: false).resetWeek();
+        // returnValue = true;
+        Navigator.of(context).pop(true);
+      },
+    ); // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text("Do you want to continue?"),
+      content: Text(message),
+      actions: [
+        cancelButton,
+        continueButton,
+      ],
+    ); // show the dialog
+    final result = await showDialog<bool?>(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+    return result ?? false;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: _backgroundColor, // Set the background color
+      drawer: Drawer(
+        // Add a ListView to the drawer. This ensures the user can scroll
+        // through the options in the drawer if there isn't enough vertical
+        // space to fit everything.
+        child: ListView(
+          // Important: Remove any padding from the ListView.
+          padding: EdgeInsets.zero,
+          children: [
+            const DrawerHeader(
+              decoration: BoxDecoration(),
+              child: Text('BorkBook'),
+            ),
+            ListTile(
+              title: InkWell(
+                onTap: () {
+                  Navigator.of(context).pop(false);
+                  showAlertDialog(
+                      context, "Reset the current week of dog meals");
+                },
+                child: Text(
+                  "Reset week",
+                  style: TextStyle(
+                    fontWeight: FontWeight.normal,
+                    fontSize: 18,
+                    color: _accentColor,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
       appBar: AppBar(
         title: const Text('BorkBook'),
+//            const Text('BorkBook', style: TextStyle(color: Colors.redAccent)),
+        centerTitle: true,
         backgroundColor: _appBarColor, // Brown AppBar
+        leading: Builder(builder: (BuildContext context) {
+          return IconButton(
+              icon: const Icon(Icons.menu),
+              tooltip: 'Menu',
+              onPressed: () {
+                Scaffold.of(context).openDrawer();
+              });
+        }),
+        // leading: IconButton(
+        //   icon: const Icon(Icons.menu),
+        //   tooltip: 'Show Snackbar',
+        //   onPressed: () {
+        //     Scaffold.of(context).openDrawer();
+        //   },
+        // ),
+        // actions: [IconButton(onPressed: () => {}, icon: Icon(Icons.ac_unit))],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(48.0),
           child: Container(
@@ -98,7 +182,7 @@ class _HomeScreenState extends State<HomeScreen>
               labelColor: _activeTabTextColor,
               unselectedLabelColor: _inactiveTabTextColor,
               tabs: List.generate(_weekDays.length, (index) {
-                bool isToday = index == (DateTime.now().weekday % 7) - 1;
+                bool isToday = index == (DateTime.now().weekday - 1 % 7);
                 return Tab(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,

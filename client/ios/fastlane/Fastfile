@@ -1,0 +1,48 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+default_platform(:ios)
+
+platform :ios do
+  desc "Description of what the lane does"
+  lane :custom_lane do
+    # add actions here: https://docs.fastlane.tools/actions
+  end
+end
+
+lane :distribute do
+  # Set the path to ExportOptions.plist
+  export_options_path = File.expand_path("../ExportOptions.plist", __dir__)
+
+  # Firebase App Distribution command
+  firebase_app_id = "borkbook-35422"
+  firebase_cli_token = ENV["FIREBASE_TOKEN"]
+  
+  # Change to Flutter root directory
+  Dir.chdir("..") do
+    sh('pwd')  # Display current directory for verification
+
+    # Build the IPA with the absolute path to ExportOptions.plist
+    sh("flutter build ipa --export-options-plist=#{export_options_path}")
+
+    # Locate the IPA file dynamically
+    ipa_path = Dir["build/ios/ipa/*.ipa"].last
+
+    # Firebase distribution (modify the echo to the actual command)
+    sh("echo 'firebase appdistribution:distribute #{ipa_path} --app #{firebase_app_id} --groups testers --token #{firebase_cli_token}'")
+
+  end
+
+end
