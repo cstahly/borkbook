@@ -1,6 +1,7 @@
 {
   "Precious": {
     "Monday": {
+<<<<<<< HEAD
       "Breakfast": false,
       "Lunch": false,
       "Dinner": false
@@ -9,6 +10,16 @@
       "Breakfast": false,
       "Lunch": false,
       "Dinner": false
+=======
+      "Breakfast": true,
+      "Lunch": true,
+      "Dinner": true
+    },
+    "Tuesday": {
+      "Breakfast": true,
+      "Lunch": true,
+      "Dinner": true
+>>>>>>> 6437ecb (fix capitalization bug; finalize https cert location (certbot))
     },
     "Wednesday": {
       "Breakfast": true,
@@ -16,6 +27,7 @@
       "Dinner": false
     },
     "Thursday": {
+<<<<<<< HEAD
       "Breakfast": false,
       "Lunch": false,
       "Dinner": false
@@ -34,10 +46,31 @@
       "Breakfast": false,
       "Lunch": false,
       "Dinner": false
+=======
+      "Breakfast": true,
+      "Lunch": true,
+      "Dinner": true
+    },
+    "Friday": {
+      "Breakfast": true,
+      "Lunch": true,
+      "Dinner": true
+    },
+    "Saturday": {
+      "Breakfast": true,
+      "Lunch": true,
+      "Dinner": true
+    },
+    "Sunday": {
+      "Breakfast": true,
+      "Lunch": true,
+      "Dinner": true
+>>>>>>> 6437ecb (fix capitalization bug; finalize https cert location (certbot))
     }
   },
   "Tucker": {
     "Monday": {
+<<<<<<< HEAD
       "Breakfast": false,
       "Lunch": false,
       "Dinner": false
@@ -46,6 +79,16 @@
       "Breakfast": false,
       "Lunch": false,
       "Dinner": false
+=======
+      "Breakfast": true,
+      "Lunch": true,
+      "Dinner": true
+    },
+    "Tuesday": {
+      "Breakfast": true,
+      "Lunch": true,
+      "Dinner": true
+>>>>>>> 6437ecb (fix capitalization bug; finalize https cert location (certbot))
     },
     "Wednesday": {
       "Breakfast": true,
@@ -53,6 +96,7 @@
       "Dinner": false
     },
     "Thursday": {
+<<<<<<< HEAD
       "Breakfast": false,
       "Lunch": false,
       "Dinner": false
@@ -71,6 +115,26 @@
       "Breakfast": false,
       "Lunch": false,
       "Dinner": false
+=======
+      "Breakfast": true,
+      "Lunch": true,
+      "Dinner": true
+    },
+    "Friday": {
+      "Breakfast": true,
+      "Lunch": true,
+      "Dinner": true
+    },
+    "Saturday": {
+      "Breakfast": true,
+      "Lunch": true,
+      "Dinner": true
+    },
+    "Sunday": {
+      "Breakfast": true,
+      "Lunch": true,
+      "Dinner": true
+>>>>>>> 6437ecb (fix capitalization bug; finalize https cert location (certbot))
     }
   }
 }

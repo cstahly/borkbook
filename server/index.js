@@ -1,9 +1,16 @@
 const https = require('https');
+<<<<<<< HEAD
 const http = require('http'); // For redirecting HTTP to HTTPS
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs').promises;
 const fsSync = require('fs'); // for reading sync SSL files
+=======
+const express = require('express');
+const cors = require('cors');
+const fs = require('fs').promises;
+const fsSync = require('fs'); // Use for reading SSL files
+>>>>>>> 6437ecb (fix capitalization bug; finalize https cert location (certbot))
 const app = express();
 const port = 4444;
 
@@ -11,13 +18,48 @@ app.use(express.json());
 
 // Use CORS middleware
 app.use(cors({
+<<<<<<< HEAD
   origin: 'https://freepuppyservices.com', // Replace '*' with a specific origin for security
+=======
+  origin: 'https://freepuppyservices.com', // Specify the allowed origin for security
+>>>>>>> 6437ecb (fix capitalization bug; finalize https cert location (certbot))
   methods: ['GET', 'POST'],
 }));
 
 const mealsFile = './meals.json';
 let meals = {};
-let lastUpdated = new Date(); // Track the last updated time
+let lastUpdated = new Date();
+
+app.get('/reset', async (req, res) => {
+  meals = {
+    "Precious": {
+      "Monday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+      "Tuesday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+      "Wednesday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+      "Thursday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+      "Friday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+      "Saturday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+      "Sunday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+    },
+    "Tucker": {
+      "Monday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+      "Tuesday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+      "Wednesday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+      "Thursday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+      "Friday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+      "Saturday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+      "Sunday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+    }
+  };
+
+  try {
+    await fs.writeFile(mealsFile, JSON.stringify(meals, null, 2), 'utf-8');
+    res.json({ message: 'Meals reset successfully!' });
+  } catch (err) {
+    console.error('Error resetting meals file:', err);
+    res.status(500).json({ message: 'Failed to reset meals file.' });
+  }
+});
 
 // Load meal data from the file at server startup
 const loadMealsFromFile = async () => {
@@ -61,13 +103,12 @@ const saveMealsToFile = async () => {
   }
 };
 
-// Route to get the meal data
+// Routes to get the meal data and last update time
 app.get('/meals', (req, res) => {
   console.log(`Meal request: ${JSON.stringify(meals)}`);
   res.json(meals);
 });
 
-// Route to get the last time the meals were updated
 app.get('/last-updated', (req, res) => {
   console.log(`Last update request: ${JSON.stringify(req.body)}`);
   res.json({ last_updated: lastUpdated });
@@ -79,9 +120,12 @@ app.post('/meals', async (req, res) => {
 
   const properMeal = meal.charAt(0).toUpperCase() + meal.slice(1);
 
-  if (meals[dog] && meals[dog][day] ) { //&& typeof meals[dog][day][meal] !== 'undefined') {
+  console.log('meals[dog]: '+JSON.stringify(meals[dog]));
+  console.log('meals[dog][day]: '+JSON.stringify(meals[dog][day]));
+
+  if (meals[dog] && meals[dog][day]) {
     meals[dog][day][properMeal] = fed;
-    lastUpdated = new Date();  // Update the last updated timestamp
+    lastUpdated = new Date();
 
     // Save the updated meal data to file
     await saveMealsToFile();
@@ -92,6 +136,7 @@ app.post('/meals', async (req, res) => {
   }
 });
 
+<<<<<<< HEAD
 // Load your SSL certificate and key
 const privateKey = fsSync.readFileSync('/var/www/ssh/freepuppyservices.com.key', 'utf8');
 const certificate = fsSync.readFileSync('/var/www/ssh/fullchain.cer', 'utf8');
@@ -100,6 +145,16 @@ const credentials = { key: privateKey, cert: certificate };
 
 // Start the HTTPS server
 https.createServer(credentials, app).listen(port, () => {
+=======
+// Load SSL certificates
+const sslOptions = {
+  key: fsSync.readFileSync('/etc/letsencrypt/live/freepuppyservices.com/privkey.pem', 'utf8'),
+  cert: fsSync.readFileSync('/etc/letsencrypt/live/freepuppyservices.com/fullchain.pem', 'utf8')
+};
+
+// Start the HTTPS server
+https.createServer(sslOptions, app).listen(port, () => {
+>>>>>>> 6437ecb (fix capitalization bug; finalize https cert location (certbot))
   console.log(`HTTPS Server running on port ${port}`);
 });
 
