@@ -16,33 +16,34 @@
 default_platform(:ios)
 
 platform :ios do
-  desc "Description of what the lane does"
-  lane :custom_lane do
-    # add actions here: https://docs.fastlane.tools/actions
-  end
-end
+  desc "Distribute to Firebase App Distribution"
+  lane :distribute do
+    # Build the IPA without re-archiving
+    build_app(
+      export_options: "ExportOptions.plist",
+      skip_build_archive: true,
+      archive_path: "../build/ios/archive/Runner.xcarchive"
+    )
 
-lane :distribute do
-  # Set the path to ExportOptions.plist
-  export_options_path = File.expand_path("../ExportOptions.plist", __dir__)
+    # Firebase App Distribution command
+    firebase_app_id = "1:1007477594478:ios:43c7ac51e402e5a50cc97f"
+    firebase_cli_token = ENV["FIREBASE_TOKEN"]
 
-  # Firebase App Distribution command
-  firebase_app_id = "borkbook-35422"
-  firebase_cli_token = ENV["FIREBASE_TOKEN"]
-  
-  # Change to Flutter root directory
-  Dir.chdir("..") do
-    sh('pwd')  # Display current directory for verification
-
-    # Build the IPA with the absolute path to ExportOptions.plist
-    sh("flutter build ipa --export-options-plist=#{export_options_path}")
-
-    # Locate the IPA file dynamically
-    ipa_path = Dir["build/ios/ipa/*.ipa"].last
+    # Use the automatically set IPA_OUTPUT_PATH
+    ipa_path = Actions.lane_context[SharedValues::IPA_OUTPUT_PATH]
+    unless ipa_path && File.exist?(ipa_path)
+      UI.user_error!("IPA file not found at #{ipa_path}. Check that the Flutter build completed successfully.")
+    end
 
     # Firebase distribution (modify the echo to the actual command)
-    sh("echo 'firebase appdistribution:distribute #{ipa_path} --app #{firebase_app_id} --groups testers --token #{firebase_cli_token}'")
+#    sh("echo 'firebase appdistribution:distribute #{ipa_path} --app #{firebase_app_id} --groups testers --token #{firebase_cli_token}'")
 
+    # Upload to Firebase App Distribution
+    firebase_app_distribution(
+      app: firebase_app_id,
+      ipa_path: ipa_path,
+      groups: "ios",
+      firebase_cli_token: firebase_cli_token
+    )
   end
-
 end

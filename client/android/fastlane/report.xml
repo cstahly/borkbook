@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="fastlane.lanes">
+    
+    
+    
+      
+      <testcase classname="fastlane.lanes" name="0: default_platform" time="0.000323">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="1: flutter build apk" time="4.076593">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="2: echo &apos;firebase appdistribution:distribute /Volumes/vela/src/borkbook/client/build/app/outputs/flutter-apk/app-release.apk --app your_firebase_app_id --groups testers --token 1//013hC2lPuqm1ACgYIARAAGAESNwF-L9IrKGtm0gXof5OGUAQYQ3Ws9VAJKXRKQko8qM65Q8Z88jTTFBDKcoQvn2y3drZ06Q67ZlI&apos;" time="0.017537">
+        
+      </testcase>
+    
+  </testsuite>
+</testsuites>

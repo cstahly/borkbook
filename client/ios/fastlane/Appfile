@@ -4,3 +4,7 @@
 
 # For more information about the Appfile, see:
 #     https://docs.fastlane.tools/advanced/#appfile
+#app_identifier("com.freepuppyservices.borkbook") # Matches Info.plist
+#apple_id("cstahly@gmail.com") # Your Apple ID
+#team_id("634QAM3ZHG") # Apple Developer team ID
+#itc_team_id("YOUR_ITC_TEAM_ID") # iTunes Connect team ID

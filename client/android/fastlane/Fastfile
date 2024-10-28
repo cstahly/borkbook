@@ -1,51 +1,50 @@
-# This file contains the fastlane.tools configuration
-# You can find the documentation at https://docs.fastlane.tools
-#
-# For a list of all available actions, check out
-#
-#     https://docs.fastlane.tools/actions
-#
-# For a list of all available plugins, check out
-#
-#     https://docs.fastlane.tools/plugins/available-plugins
-#
-
-# Uncomment the line if you want fastlane to automatically update itself
-# update_fastlane
-
 default_platform(:android)
 
 platform :android do
-  desc "Runs all the tests"
-  lane :test do
-    gradle(task: "test")
+
+  desc "Build and distribute to Firebase App Distribution"
+  lane :distribute do
+    # Set Firebase App Distribution variables
+    firebase_app_id = "your_firebase_app_id" # Replace with your Firebase App ID
+    firebase_cli_token = ENV["FIREBASE_TOKEN"]
+
+    # Build the APK
+    sh("flutter build apk")
+
+    # Use the environment variable for the APK output path
+    apk_path = File.expand_path("../../build/app/outputs/flutter-apk/app-release.apk", Dir.pwd)
+    if apk_path.nil? || !File.exist?(apk_path)
+      UI.user_error!("APK file not found. Make sure the build completed successfully: " + apk_path)
+    end
+
+    sh("echo 'firebase appdistribution:distribute #{apk_path} --app #{firebase_app_id} --groups testers --token #{firebase_cli_token}'")
+    
+    # Upload to Firebase App Distribution
+    # firebase_app_distribution(
+    #   app: firebase_app_id,
+    #   apk_path: apk_path,
+    #   groups: "android",
+    #   firebase_cli_token: firebase_cli_token
+    # )
   end
 
-  desc "Submit a new Beta Build to Crashlytics Beta"
-  lane :beta do
-    gradle(task: "clean assembleRelease")
-    crashlytics
-  
-    # sh "your_script.sh"
-    # You can also use other beta testing services here
-  end
+  # desc "Deploy a new version to the Google Play Store"
+  # lane :deploy do
+  #   # Build the release APK
+  #   gradle(task: "clean assembleRelease")
 
-  desc "Deploy a new version to the Google Play"
-  lane :deploy do
-    gradle(task: "clean assembleRelease")
-    upload_to_play_store
-  end
-end
+  #   # Use the APK path directly from the environment variable
+  #   apk_path = Actions.lane_context[SharedValues::GRADLE_APK_OUTPUT_PATH]
+  #   if apk_path.nil? || !File.exist?(apk_path)
+  #     UI.user_error!("APK file not found. Make sure the build completed successfully.")
+  #   end
 
-lane :distribute do
-  # Build the APK
-  sh("flutter build apk")
-
-  # Locate the APK file dynamically
-  apk_path = Dir["build/app/outputs/flutter-apk/*.apk"].last
-
-  # Firebase App Distribution command
-  firebase_app_id = "borkbook-35422"
-  firebase_cli_token = ENV["FIREBASE_TOKEN"]
-  sh("firebase appdistribution:distribute #{apk_path} --app #{firebase_app_id} --groups testers --token #{firebase_cli_token}")
+  #   # Upload to Google Play
+  #   upload_to_play_store(
+  #     track: "production", # or "beta", "alpha" based on your release stage
+  #     skip_upload_metadata: true, # Skip metadata if not needed
+  #     skip_upload_images: true,
+  #     skip_upload_screenshots: true
+  #   )
+  # end
 end

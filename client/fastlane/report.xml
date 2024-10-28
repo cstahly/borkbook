@@ -5,7 +5,12 @@
     
     
       
-      <testcase classname="fastlane.lanes" name="0: fastlane distribute" time="146.14983">
+      <testcase classname="fastlane.lanes" name="0: flutter build web --base-href &apos;/borkbook/&apos;" time="15.314972">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="1: scp -r ../build/web/* ec2-user@freepuppyservices.com:/var/www/html/borkbook" time="5.460993">
         
       </testcase>
     
