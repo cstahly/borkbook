@@ -1,8 +1,6 @@
-const https = require('https');
 const express = require('express');
-const cors = require('cors');
+const cors = require('cors'); // Import cors middleware
 const fs = require('fs').promises;
-const fsSync = require('fs'); // Use for reading SSL files
 const app = express();
 const port = 4444;
 
@@ -13,6 +11,14 @@ app.use(cors({
   origin: 'https://freepuppyservices.com', // Specify the allowed origin for security
   methods: ['GET', 'POST'],
 }));
+
+// Initialize Firebase Admin
+const serviceAccount = require('/home/ec2-user/borkbook-firebase.json');
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
+
+let tokens = []; // To store device tokens
 
 const mealsFile = './meals.json';
 let meals = {};
@@ -122,6 +128,46 @@ app.post('/meals', async (req, res) => {
   } else {
     return res.status(400).json({ message: 'Invalid data provided!' });
   }
+});
+
+// Endpoint to register device tokens
+app.post('/register-token', (req, res) => {
+  const { token } = req.body;
+  if (token && !tokens.includes(token)) {
+    tokens.push(token);
+    console.log(`Token registered: ${token}`);
+    res.status(200).send('Token registered');
+  } else {
+    res.status(400).send('Invalid token');
+  }
+});
+
+// Endpoint to send notification to all devices except the sender
+app.post('/send-notification', (req, res) => {
+  const { message } = req.body;
+  const senderToken = req.headers['sender-token'];
+
+  // Filter out the sender's token
+  const recipientTokens = tokens.filter((token) => token !== senderToken);
+
+  const payload = {
+    notification: {
+      title: 'BorkBook',
+      body: message,
+    },
+  };
+
+  admin
+    .messaging()
+    .sendToDevice(recipientTokens, payload)
+    .then((response) => {
+      console.log('Notification sent successfully:', response);
+      res.status(200).send('Notification sent');
+    })
+    .catch((error) => {
+      console.error('Error sending notification:', error);
+      res.status(500).send('Error sending notification');
+    });
 });
 
 // Load SSL certificates

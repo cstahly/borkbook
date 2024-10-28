@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/meal_provider.dart';
+import 'package:flutter/material.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -115,6 +119,28 @@ class _HomeScreenState extends State<HomeScreen>
     return result ?? false;
   }
 
+  Future<void> sendNotification() async {
+    String? token = await FirebaseMessaging.instance.getToken();
+    final response = await http.post(
+      Uri.parse('https://freepuppyservices.com:4444/send-notification'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Sender-Token': token ?? '',
+      },
+      body: jsonEncode({'message': 'Have the dogs been fed?'}),
+    );
+
+    if (response.statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Notification sent')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to send notification')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -123,8 +149,8 @@ class _HomeScreenState extends State<HomeScreen>
         // Add a ListView to the drawer. This ensures the user can scroll
         // through the options in the drawer if there isn't enough vertical
         // space to fit everything.
+// Inside your Drawer widget
         child: ListView(
-          // Important: Remove any padding from the ListView.
           padding: EdgeInsets.zero,
           children: [
             const DrawerHeader(
@@ -140,6 +166,22 @@ class _HomeScreenState extends State<HomeScreen>
                 },
                 child: Text(
                   "Reset week",
+                  style: TextStyle(
+                    fontWeight: FontWeight.normal,
+                    fontSize: 18,
+                    color: _accentColor,
+                  ),
+                ),
+              ),
+            ),
+            ListTile(
+              title: InkWell(
+                onTap: () async {
+                  Navigator.of(context).pop();
+                  await sendNotification();
+                },
+                child: Text(
+                  "Have the dogs been fed?",
                   style: TextStyle(
                     fontWeight: FontWeight.normal,
                     fontSize: 18,
