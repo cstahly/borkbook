@@ -1,3 +1,5 @@
+import 'dart:io' if (dart.library.html) 'dart:html' as html;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/meal_provider.dart';
@@ -6,12 +8,26 @@ import 'package:shared_preferences/shared_preferences.dart'; // Added for local 
 import 'firebase_options.dart'; // Firebase initialization options
 import 'package:firebase_core/firebase_core.dart'; // Firebase core
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:http/http.dart' as http; // Import http library
+import 'dart:convert'; // Import dart:convert for jsonEncode
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  if (kIsWeb) {
+    try {
+      // Try registering the service worker only on the web
+      await html.window.navigator.serviceWorker
+          ?.register('/firebase-messaging-sw.js');
+      print('Service Worker registered successfully');
+    } catch (e) {
+      // Log a warning if registration fails
+      print('Service Worker registration failed: $e');
+    }
+  }
 
   await setupFCM();
 
@@ -32,7 +48,7 @@ class MyApp extends StatelessWidget {
 
           // Define the default brightness and colors.
           colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.purple,
+            seedColor: Colors.brown,
             // TRY THIS: Change to "Brightness.light"
             //           and see that all colors change
             //           to better contrast a light background.
@@ -57,33 +73,42 @@ class MyApp extends StatelessWidget {
 Future<void> setupFCM() async {
   FirebaseMessaging messaging = FirebaseMessaging.instance;
 
-  // Request permissions for iOS
-  NotificationSettings settings = await messaging.requestPermission(
-    alert: true,
-    badge: true,
-    sound: true,
-  );
-
-  // Handle foreground messages
-  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    // Display a toast or snackbar
-    ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
-      SnackBar(content: Text(message.notification?.body ?? 'New notification')),
+  try {
+    // Request permissions for iOS only (skip for web where permissions might be blocked)
+    //if (!kIsWeb) {
+    NotificationSettings settings = await messaging.requestPermission(
+      alert: true,
+      badge: true,
+      sound: true,
     );
-  });
+    print('FCM permission settings: ${settings.authorizationStatus}');
+    //}
 
-  // Get the device token and send it to the server
-  String? token = await messaging.getToken();
-  if (token != null) {
-    // Send the token to your server
-    await sendTokenToServer(token);
+    // Handle foreground messages
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      // Display a toast or snackbar
+      ScaffoldMessenger.of(navigatorKey.currentContext!)?.showSnackBar(
+        SnackBar(
+            content: Text(message.notification?.body ?? 'New notification')),
+      );
+    });
+
+    // Get the device token and send it to the server
+    String? token = await messaging.getToken();
+    if (token != null) {
+      // Send the token to your server
+      await sendTokenToServer(token);
+    }
+
+    // Handle token refresh
+    FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {
+      // Send the new token to your server
+      sendTokenToServer(newToken);
+    });
+  } catch (e) {
+    // Log a warning if FCM setup fails
+    print('FCM setup failed: $e');
   }
-
-  // Handle token refresh
-  FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {
-    // Send the new token to your server
-    sendTokenToServer(newToken);
-  });
 }
 
 Future<void> sendTokenToServer(String token) async {
