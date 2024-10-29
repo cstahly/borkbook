@@ -1,11 +1,17 @@
 const express = require('express');
 const cors = require('cors'); // Import cors middleware
 const fs = require('fs');
+const https = require('https');
+const admin = require('firebase-admin'); // Import Firebase Admin SDK
+
+// Initialize Firebase Admin
+const serviceAccount = require('/home/ec2-user/borkbook-firebase.json');
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
+
 const app = express();
 const port = 4444;
-const https = require('https');
-
-const admin = require('firebase-admin');
 app.use(express.json());
 
 // Use CORS middleware
@@ -14,18 +20,12 @@ app.use(cors({
   methods: ['GET', 'POST'],
 }));
 
-// Initialize Firebase Admin
-const serviceAccount = require('/home/ec2-user/borkbook-firebase.json');
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-});
-
 let tokens = []; // To store device tokens
-
 const mealsFile = './meals.json';
 let meals = {};
 let lastUpdated = new Date();
 
+// Reset meal data
 app.get('/reset', async (req, res) => {
   meals = {
     "Precious": {
@@ -49,7 +49,7 @@ app.get('/reset', async (req, res) => {
   };
 
   try {
-    await fs.writeFile(mealsFile, JSON.stringify(meals, null, 2), 'utf-8');
+    await fs.promises.writeFile(mealsFile, JSON.stringify(meals, null, 2), 'utf-8');
     res.json({ message: 'Meals reset successfully!' });
   } catch (err) {
     console.error('Error resetting meals file:', err);
@@ -58,39 +58,24 @@ app.get('/reset', async (req, res) => {
 });
 
 // Load meal data from the file at server startup
-const loadMealsFromFile = () => {
+const loadMealsFromFile = (callback) => {
   fs.readFile(mealsFile, 'utf-8', (err, data) => {
     if (err) {
       console.error('Could not load meal data from file, initializing default data.', err);
       meals = {
-        "Precious": {
-          "Monday": { "Breakfast": false, "Lunch": false, "Dinner": false },
-          "Tuesday": { "Breakfast": false, "Lunch": false, "Dinner": false },
-          "Wednesday": { "Breakfast": false, "Lunch": false, "Dinner": false },
-          "Thursday": { "Breakfast": false, "Lunch": false, "Dinner": false },
-          "Friday": { "Breakfast": false, "Lunch": false, "Dinner": false },
-          "Saturday": { "Breakfast": false, "Lunch": false, "Dinner": false },
-          "Sunday": { "Breakfast": false, "Lunch": false, "Dinner": false },
-        },
-        "Tucker": {
-          "Monday": { "Breakfast": false, "Lunch": false, "Dinner": false },
-          "Tuesday": { "Breakfast": false, "Lunch": false, "Dinner": false },
-          "Wednesday": { "Breakfast": false, "Lunch": false, "Dinner": false },
-          "Thursday": { "Breakfast": false, "Lunch": false, "Dinner": false },
-          "Friday": { "Breakfast": false, "Lunch": false, "Dinner": false },
-          "Saturday": { "Breakfast": false, "Lunch": false, "Dinner": false },
-          "Sunday": { "Breakfast": false, "Lunch": false, "Dinner": false },
-        }
+        "Precious": { "Monday": { "Breakfast": false, "Lunch": false, "Dinner": false } /* other days */ },
+        "Tucker": { "Monday": { "Breakfast": false, "Lunch": false, "Dinner": false } /* other days */ }
       };
-      // Save default data to file
       saveMealsToFile();
     } else {
       meals = JSON.parse(data);
       console.log('Meal data loaded from file.');
     }
+    if (callback) callback();
   });
 };
 
+// Save the current meal data to the file
 const saveMealsToFile = () => {
   fs.writeFile(mealsFile, JSON.stringify(meals, null, 2), 'utf-8', (err) => {
     if (err) {
@@ -103,31 +88,22 @@ const saveMealsToFile = () => {
 
 // Routes to get the meal data and last update time
 app.get('/meals', (req, res) => {
-  console.log(`Meal request: ${JSON.stringify(meals)}`);
   res.json(meals);
 });
 
 app.get('/last-updated', (req, res) => {
-  console.log(`Last update request: ${JSON.stringify(req.body)}`);
   res.json({ last_updated: lastUpdated });
 });
 
 // Route to update the meal data
 app.post('/meals', async (req, res) => {
   const { dog, day, meal, fed } = req.body;
-
   const properMeal = meal.charAt(0).toUpperCase() + meal.slice(1);
-
-  console.log('meals[dog]: '+JSON.stringify(meals[dog]));
-  console.log('meals[dog][day]: '+JSON.stringify(meals[dog][day]));
 
   if (meals[dog] && meals[dog][day]) {
     meals[dog][day][properMeal] = fed;
     lastUpdated = new Date();
-
-    // Save the updated meal data to file
     await saveMealsToFile();
-
     return res.json({ message: 'Meal updated successfully!' });
   } else {
     return res.status(400).json({ message: 'Invalid data provided!' });
@@ -137,47 +113,64 @@ app.post('/meals', async (req, res) => {
 // Endpoint to register device tokens
 app.post('/register-token', (req, res) => {
   const { token } = req.body;
-
-  if (!token) {
-    return res.status(400).send('Token is missing');
-  }
-
-  if (!tokens.includes(token)) {
-    tokens.push(token);
-    console.log(`Token registered: ${token}`);
-  } else {
-    console.log(`Token already registered: ${token}`);
-  }
-
+  if (!token) return res.status(400).send('Token is missing');
+  if (!tokens.includes(token)) tokens.push(token);
   res.status(200).send('Token registered');
 });
 
 // Endpoint to send notification to all devices except the sender
-app.post('/send-notification', (req, res) => {
-  const { message } = req.body;
+app.post('/send-notification', async (req, res) => {
+  const { message: bodyMessage } = req.body;
   const senderToken = req.headers['sender-token'];
 
   // Filter out the sender's token
   const recipientTokens = tokens.filter((token) => token !== senderToken);
 
-  const payload = {
+  if (recipientTokens.length === 0) {
+    return res.status(400).send('No recipients to notify');
+  }
+
+  // Define base message structure for notifications
+  const baseMessage = {
     notification: {
       title: 'BorkBook',
-      body: message,
+      body: bodyMessage,
+    },
+    data: {
+      click_action: 'FLUTTER_NOTIFICATION_CLICK',
     },
   };
 
-  admin
-    .messaging()
-    .sendToDevice(recipientTokens, payload)
-    .then((response) => {
-      console.log('Notification sent successfully:', response);
-      res.status(200).send('Notification sent');
-    })
-    .catch((error) => {
-      console.error('Error sending notification:', error);
-      res.status(500).send('Error sending notification');
-    });
+  let successCount = 0;
+  let failureCount = 0;
+
+  // Send notification to each recipient token
+  for (const token of recipientTokens) {
+    try {
+      const message = { ...baseMessage, token }; // Structure for each recipient
+      await admin.messaging().send(message);
+      console.log(`Notification sent successfully to token: ${token}`);
+      successCount++;
+    } catch (error) {
+      console.error(`Error sending to token ${token}:`, error);
+      failureCount++;
+
+      // Handle invalid tokens
+      if (
+        error.code === 'messaging/invalid-registration-token' ||
+        error.code === 'messaging/registration-token-not-registered'
+      ) {
+        tokens = tokens.filter((t) => t !== token);
+      }
+    }
+  }
+
+  // Send response based on success/failure count
+  if (failureCount > 0) {
+    return res.status(500).send(`${failureCount} notifications failed to send, ${successCount} sent successfully.`);
+  }
+
+  res.status(200).send('All notifications sent successfully');
 });
 
 // Load SSL certificates

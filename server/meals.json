@@ -6,7 +6,7 @@
       "Dinner": true
     },
     "Tuesday": {
-      "Breakfast": false,
+      "Breakfast": true,
       "Lunch": false,
       "Dinner": false
     },
