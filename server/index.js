@@ -1,9 +1,11 @@
 const express = require('express');
 const cors = require('cors'); // Import cors middleware
-const fs = require('fs').promises;
+const fs = require('fs');
 const app = express();
 const port = 4444;
+const https = require('https');
 
+const admin = require('firebase-admin');
 app.use(express.json());
 
 // Use CORS middleware
@@ -56,45 +58,47 @@ app.get('/reset', async (req, res) => {
 });
 
 // Load meal data from the file at server startup
-const loadMealsFromFile = async () => {
-  try {
-    const data = await fs.readFile(mealsFile, 'utf-8');
-    meals = JSON.parse(data);
-    console.log('Meal data loaded from file.');
-  } catch (err) {
-    console.error('Could not load meal data from file, initializing default data.', err);
-    meals = {
-      "Precious": {
-        "Monday": { "Breakfast": false, "Lunch": false, "Dinner": false },
-        "Tuesday": { "Breakfast": false, "Lunch": false, "Dinner": false },
-        "Wednesday": { "Breakfast": false, "Lunch": false, "Dinner": false },
-        "Thursday": { "Breakfast": false, "Lunch": false, "Dinner": false },
-        "Friday": { "Breakfast": false, "Lunch": false, "Dinner": false },
-        "Saturday": { "Breakfast": false, "Lunch": false, "Dinner": false },
-        "Sunday": { "Breakfast": false, "Lunch": false, "Dinner": false },
-      },
-      "Tucker": {
-        "Monday": { "Breakfast": false, "Lunch": false, "Dinner": false },
-        "Tuesday": { "Breakfast": false, "Lunch": false, "Dinner": false },
-        "Wednesday": { "Breakfast": false, "Lunch": false, "Dinner": false },
-        "Thursday": { "Breakfast": false, "Lunch": false, "Dinner": false },
-        "Friday": { "Breakfast": false, "Lunch": false, "Dinner": false },
-        "Saturday": { "Breakfast": false, "Lunch": false, "Dinner": false },
-        "Sunday": { "Breakfast": false, "Lunch": false, "Dinner": false },
-      }
-    };
-    await saveMealsToFile();
-  }
+const loadMealsFromFile = () => {
+  fs.readFile(mealsFile, 'utf-8', (err, data) => {
+    if (err) {
+      console.error('Could not load meal data from file, initializing default data.', err);
+      meals = {
+        "Precious": {
+          "Monday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+          "Tuesday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+          "Wednesday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+          "Thursday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+          "Friday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+          "Saturday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+          "Sunday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+        },
+        "Tucker": {
+          "Monday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+          "Tuesday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+          "Wednesday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+          "Thursday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+          "Friday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+          "Saturday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+          "Sunday": { "Breakfast": false, "Lunch": false, "Dinner": false },
+        }
+      };
+      // Save default data to file
+      saveMealsToFile();
+    } else {
+      meals = JSON.parse(data);
+      console.log('Meal data loaded from file.');
+    }
+  });
 };
 
-// Save the current meal data to the file
-const saveMealsToFile = async () => {
-  try {
-    await fs.writeFile(mealsFile, JSON.stringify(meals, null, 2), 'utf-8');
-    console.log('Meal data saved to file.');
-  } catch (err) {
-    console.error('Error writing meal data to file:', err);
-  }
+const saveMealsToFile = () => {
+  fs.writeFile(mealsFile, JSON.stringify(meals, null, 2), 'utf-8', (err) => {
+    if (err) {
+      console.error('Error writing meal data to file:', err);
+    } else {
+      console.log('Meal data saved to file.');
+    }
+  });
 };
 
 // Routes to get the meal data and last update time
@@ -133,13 +137,19 @@ app.post('/meals', async (req, res) => {
 // Endpoint to register device tokens
 app.post('/register-token', (req, res) => {
   const { token } = req.body;
-  if (token && !tokens.includes(token)) {
+
+  if (!token) {
+    return res.status(400).send('Token is missing');
+  }
+
+  if (!tokens.includes(token)) {
     tokens.push(token);
     console.log(`Token registered: ${token}`);
-    res.status(200).send('Token registered');
   } else {
-    res.status(400).send('Invalid token');
+    console.log(`Token already registered: ${token}`);
   }
+
+  res.status(200).send('Token registered');
 });
 
 // Endpoint to send notification to all devices except the sender
@@ -172,8 +182,8 @@ app.post('/send-notification', (req, res) => {
 
 // Load SSL certificates
 const sslOptions = {
-  key: fsSync.readFileSync('/etc/letsencrypt/live/freepuppyservices.com/privkey.pem', 'utf8'),
-  cert: fsSync.readFileSync('/etc/letsencrypt/live/freepuppyservices.com/fullchain.pem', 'utf8')
+  key: fs.readFileSync('/etc/letsencrypt/live/freepuppyservices.com/privkey.pem', 'utf8'),
+  cert: fs.readFileSync('/etc/letsencrypt/live/freepuppyservices.com/fullchain.pem', 'utf8')
 };
 
 // Start the HTTPS server
@@ -182,7 +192,7 @@ https.createServer(sslOptions, app).listen(port, () => {
 });
 
 // Load meal data before starting the server
-loadMealsFromFile().then(() => {
-  console.log(`Server is set up and ready.`);
+loadMealsFromFile(() => {
+  console.log('Server is set up and ready.');
 });
 
