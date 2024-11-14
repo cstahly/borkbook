@@ -14,13 +14,13 @@ jobs:
 
       - flutter/install_sdk_and_pub:
           version: '3.24.3'
-          app-dir: '.'
+          app-dir: './client'
 
       - flutter/install_android_gradle_dependencies:
-          app-dir: '.'
+          app-dir: './client'
 
       - flutter/install_android_gem:
-          app-dir: '.'
+          app-dir: './client'
 
       - run:
           name: Set up Firebase Service Account
@@ -32,7 +32,7 @@ jobs:
       - run:
           name: Build Android App with Fastlane
           command: |
-            cd android
+            cd client/android
             bundle exec fastlane android
 
 workflows:
