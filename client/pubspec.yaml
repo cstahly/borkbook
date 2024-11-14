@@ -62,6 +62,9 @@ flutter:
   assets:
     - assets/precious.png
     - assets/tucker.png
+    - assets/sad_dog.png
+    - assets/drawer_header_background.png
+    - assets/background_image.png
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

@@ -4,8 +4,9 @@ platform :android do
 
   desc "Build and distribute to Firebase App Distribution"
   lane :distribute do
+    
     # Set Firebase App Distribution variables
-    firebase_app_id = "your_firebase_app_id" # Replace with your Firebase App ID
+    firebase_app_id = "1:1007477594478:android:3a11682047e1049f0cc97f"
     firebase_cli_token = ENV["FIREBASE_TOKEN"]
 
     # Build the APK
@@ -15,9 +16,10 @@ platform :android do
     apk_path = File.expand_path("../../build/app/outputs/flutter-apk/app-release.apk", Dir.pwd)
     if apk_path.nil? || !File.exist?(apk_path)
       UI.user_error!("APK file not found. Make sure the build completed successfully: " + apk_path)
+      return
     end
 
-    sh("echo 'firebase appdistribution:distribute #{apk_path} --app #{firebase_app_id} --groups testers --token #{firebase_cli_token}'")
+    sh("firebase appdistribution:distribute #{apk_path} --app #{firebase_app_id} --groups testers --token #{firebase_cli_token}")
     
     # Upload to Firebase App Distribution
     # firebase_app_distribution(

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/meal_provider.dart';
-import 'package:flutter/material.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -31,14 +30,15 @@ class _HomeScreenState extends State<HomeScreen>
   ];
 
   // Define the color palette
-  final Color _backgroundColor = Color(0xFFFAF9F6); // Off-white/light gray
-  final Color _appBarColor = Color(0xFF5D4037); // Brown
-  final Color _tabBarColor = Color(0xFF8D6E63); // Lighter brown
-  final Color _accentColor = Color.fromARGB(255, 116, 49, 47); // Fuchsia
+  final Color _backgroundColor =
+      const Color(0xFFFAF9F6); // Off-white/light gray
+  final Color _appBarColor = const Color(0xFF5D4037); // Brown
+  final Color _tabBarColor = const Color(0xFF8D6E63); // Lighter brown
+  final Color _accentColor = const Color.fromARGB(255, 116, 49, 47); // Fuchsia
   final Color _activeTabTextColor = Colors.white;
   final Color _inactiveTabTextColor = Colors.white70;
-  final Color _cardColor = Color(0xFFEEEEEE); // Light gray for cards
-  final Color _textColor = Color(0xFF3E2723); // Dark brown for text
+  final Color _cardColor = const Color(0xFFEEEEEE); // Light gray for cards
+  final Color _textColor = const Color(0xFF3E2723); // Dark brown for text
 
   @override
   void initState() {
@@ -86,30 +86,30 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Future<bool> showAlertDialog(BuildContext context, String message) async {
-    // set up the buttons
+    // Set up the buttons
     Widget cancelButton = ElevatedButton(
-      child: Text("Cancel"),
+      child: const Text("Cancel"),
       onPressed: () {
-        // returnValue = false;
         Navigator.of(context).pop(false);
       },
     );
     Widget continueButton = ElevatedButton(
-      child: Text("Yes"),
+      child: const Text("Yes"),
       onPressed: () {
         Provider.of<MealProvider>(context, listen: false).resetWeek();
-        // returnValue = true;
         Navigator.of(context).pop(true);
       },
-    ); // set up the AlertDialog
+    );
+    // Set up the AlertDialog
     AlertDialog alert = AlertDialog(
-      title: Text("Do you want to continue?"),
+      title: const Text("Do you want to continue?"),
       content: Text(message),
       actions: [
         cancelButton,
         continueButton,
       ],
-    ); // show the dialog
+    );
+    // Show the dialog
     final result = await showDialog<bool?>(
       context: context,
       builder: (BuildContext context) {
@@ -132,11 +132,11 @@ class _HomeScreenState extends State<HomeScreen>
 
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Notification sent')),
+        const SnackBar(content: Text('Notification sent')),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to send notification')),
+        const SnackBar(content: Text('Failed to send notification')),
       );
     }
   }
@@ -146,46 +146,80 @@ class _HomeScreenState extends State<HomeScreen>
     return Scaffold(
       backgroundColor: _backgroundColor, // Set the background color
       drawer: Drawer(
-        // Add a ListView to the drawer. This ensures the user can scroll
-        // through the options in the drawer if there isn't enough vertical
-        // space to fit everything.
-// Inside your Drawer widget
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(),
-              child: Text('BorkBook'),
-            ),
-            ListTile(
-              title: InkWell(
-                onTap: () {
-                  Navigator.of(context).pop(false);
-                  showAlertDialog(
-                      context, "Reset the current week of dog meals");
-                },
+            // Redesigned Drawer Header
+            Container(
+              height: 150,
+              decoration: BoxDecoration(
+                color: _appBarColor,
+                image: DecorationImage(
+                  image:
+                      const AssetImage('assets/drawer_header_background.png'),
+                  fit: BoxFit.cover,
+                  colorFilter: ColorFilter.mode(
+                    _appBarColor.withOpacity(0.6),
+                    BlendMode.dstATop,
+                  ),
+                ),
+              ),
+              child: const Center(
                 child: Text(
-                  "Reset week",
+                  'BorkBook',
                   style: TextStyle(
-                    fontWeight: FontWeight.normal,
-                    fontSize: 18,
-                    color: _accentColor,
+                    color: Colors.white,
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    shadows: [
+                      Shadow(
+                        blurRadius: 1.0,
+                        color: Colors.black45,
+                        offset: Offset(3.0, 3.0),
+                      ),
+                    ],
                   ),
                 ),
               ),
             ),
+            const SizedBox(height: 10),
             ListTile(
+              leading: Icon(Icons.pets, color: _cardColor),
               title: InkWell(
                 onTap: () async {
                   Navigator.of(context).pop();
                   await sendNotification();
                 },
-                child: Text(
-                  "Have the dogs been fed?",
-                  style: TextStyle(
-                    fontWeight: FontWeight.normal,
-                    fontSize: 18,
-                    color: _accentColor,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Text(
+                    "Have the dogs been fed?",
+                    style: TextStyle(
+                      fontWeight: FontWeight.normal,
+                      fontSize: 18,
+                      color: _cardColor,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.refresh, color: _accentColor),
+              title: InkWell(
+                onTap: () {
+                  Navigator.of(context).pop();
+                  showAlertDialog(
+                      context, "Reset the current week of dog meals");
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Text(
+                    "Reset week",
+                    style: TextStyle(
+                      fontWeight: FontWeight.normal,
+                      fontSize: 18,
+                      color: _accentColor,
+                    ),
                   ),
                 ),
               ),
@@ -194,8 +228,38 @@ class _HomeScreenState extends State<HomeScreen>
         ),
       ),
       appBar: AppBar(
-        title: const Text('BorkBook'),
-//            const Text('BorkBook', style: TextStyle(color: Colors.redAccent)),
+        title: Container(
+          height: 150,
+          decoration: BoxDecoration(
+            color: _appBarColor,
+            image: DecorationImage(
+              image: const AssetImage('assets/sad_dog.png'),
+              fit: BoxFit.cover,
+              colorFilter: ColorFilter.mode(
+                _appBarColor.withOpacity(0.6),
+                BlendMode.dstATop,
+              ),
+            ),
+          ),
+          child: const Center(
+            child: Text(
+              'BorkBook',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                shadows: [
+                  Shadow(
+                    blurRadius: 1.0,
+                    color: Colors.black45,
+                    offset: Offset(3.0, 3.0),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        //),
         centerTitle: true,
         backgroundColor: _appBarColor, // Brown AppBar
         leading: Builder(builder: (BuildContext context) {
@@ -206,14 +270,6 @@ class _HomeScreenState extends State<HomeScreen>
                 Scaffold.of(context).openDrawer();
               });
         }),
-        // leading: IconButton(
-        //   icon: const Icon(Icons.menu),
-        //   tooltip: 'Show Snackbar',
-        //   onPressed: () {
-        //     Scaffold.of(context).openDrawer();
-        //   },
-        // ),
-        // actions: [IconButton(onPressed: () => {}, icon: Icon(Icons.ac_unit))],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(48.0),
           child: Container(
@@ -276,7 +332,7 @@ class _HomeScreenState extends State<HomeScreen>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Image.asset('assets/tucker.png', width: 100, height: 100),
+                  Image.asset('assets/sad_dog.png', width: 100, height: 100),
                   const SizedBox(height: 20),
                   Text(
                     mealProvider.error ?? 'An error occurred',
@@ -305,8 +361,18 @@ class _HomeScreenState extends State<HomeScreen>
           mealsForDay[meal.dogName] = meal.days[currentDay] ?? {};
         }
 
+        // return Container(
+        //   color: _backgroundColor,
         return Container(
-          color: _backgroundColor,
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/background_image.png'),
+              fit: BoxFit
+                  .cover, // Scales to fit the ListView but may overflow to avoid shrinking
+              alignment:
+                  Alignment.center, // Centers the image in case of overflow
+            ),
+          ),
           child: ListView(
             padding: const EdgeInsets.all(16.0),
             children: ['Breakfast', 'Lunch', 'Dinner'].map((mealType) {
@@ -399,13 +465,12 @@ class _HomeScreenState extends State<HomeScreen>
             width: 3,
           ),
           gradient: isFed
-              ? RadialGradient(
+              ? const RadialGradient(
                   colors: [
                     Colors.white,
-                    const Color.fromRGBO(255, 243, 175, 1),
-//                    _accentColor.withOpacity(0.7),
+                    Color.fromRGBO(255, 243, 175, 1),
                   ],
-                  center: const Alignment(-0.5, -0.6),
+                  center: Alignment(-0.5, -0.6),
                   radius: 0.6,
                 )
               : const RadialGradient(

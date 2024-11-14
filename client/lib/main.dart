@@ -1,15 +1,18 @@
-import 'dart:io' if (dart.library.html) 'dart:html' as html;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/meal_provider.dart';
 import 'screens/home_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // Added for local storage
-import 'firebase_options.dart'; // Firebase initialization options
-import 'package:firebase_core/firebase_core.dart'; // Firebase core
+import 'package:shared_preferences/shared_preferences.dart';
+import 'firebase_options.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:http/http.dart' as http; // Import http library
-import 'dart:convert'; // Import dart:convert for jsonEncode
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+// Import the appropriate service worker helper based on the platform
+import 'service_worker_helper.dart'
+    if (dart.library.html) 'service_worker_helper_web.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -17,17 +20,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  if (kIsWeb) {
-    try {
-      // Try registering the service worker only on the web
-      await html.window.navigator.serviceWorker
-          ?.register('/firebase-messaging-sw.js');
-      print('Service Worker registered successfully');
-    } catch (e) {
-      // Log a warning if registration fails
-      print('Service Worker registration failed: $e');
-    }
-  }
+  // Register the service worker (only on web)
+  await registerServiceWorker();
 
   await setupFCM();
 
