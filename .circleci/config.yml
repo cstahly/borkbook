@@ -8,7 +8,7 @@ jobs:
     docker:
       - image: cimg/android:2021.10.1  # Use the latest CircleCI Android image
     environment:
-      FLUTTER_VERSION: 'stable'
+      FLUTTER_VERSION: '3.24.3'
     steps:
       - checkout
 
