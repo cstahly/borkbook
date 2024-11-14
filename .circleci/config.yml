@@ -1,34 +1,124 @@
-# This config was automatically generated from your source code
-# Stacks detected: deps:node:server,deps:ruby:client
+# .circleci/config.yml
 version: 2.1
-orbs:
-  node: circleci/node@5
+
 jobs:
-  test-node:
-    # Install node dependencies and run tests
-    executor: node/default
-    working_directory: ~/project/server
-    steps:
-      - checkout:
-          path: ~/project
-      - node/install-packages:
-          pkg-manager: npm
-      - run:
-          name: Run tests
-          command: echo \"No test specified in package.json\"
-  deploy:
-    # This is an example deploy job, not actually used by the workflow
+  build-android:
     docker:
-      - image: cimg/base:stable
+      - image: circleci/android:api-30
+    working_directory: ~/project
+    environment:
+      FLUTTER_VERSION: stable
     steps:
-      # Replace this with steps to deploy to users
+      - checkout
+
       - run:
-          name: deploy
-          command: '#e.g. ./deploy.sh'
+          name: Install Dependencies
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y git wget curl unzip ruby-full nodejs npm
+
+      - run:
+          name: Install Flutter
+          command: |
+            git clone https://github.com/flutter/flutter.git -b $FLUTTER_VERSION
+            echo 'export PATH="$PATH:$HOME/project/flutter/bin:$HOME/.pub-cache/bin"' >> $BASH_ENV
+            source $BASH_ENV
+            flutter doctor
+
+      - run:
+          name: Install Bundler
+          command: gem install bundler
+
+      - run:
+          name: Install Firebase CLI
+          command: npm install -g firebase-tools
+
+      - restore_cache:
+          key: flutter-android-{{ checksum "pubspec.yaml" }}
+
+      - run:
+          name: Get Flutter Dependencies
+          command: flutter pub get
+
+      - save_cache:
+          paths:
+            - ~/.pub-cache
+            - .packages
+            - android/.gradle
+            - android/build
+          key: flutter-android-{{ checksum "pubspec.yaml" }}
+
+      - run:
+          name: Set up Firebase Service Account
+          command: |
+            echo $GOOGLE_SERVICE_ACCOUNT_KEY | base64 --decode > $HOME/firebase_service_account.json
+            echo 'export GOOGLE_APPLICATION_CREDENTIALS=$HOME/firebase_service_account.json' >> $BASH_ENV
+            source $BASH_ENV
+
+      - run:
+          name: Build Android App with Fastlane
+          command: |
+            cd android
+            bundle install
+            bundle exec fastlane android
+
+  build-ios:
+    macos:
+      xcode: "14.0.0"  # Specify the Xcode version you need
+    working_directory: ~/project
+    environment:
+      FLUTTER_VERSION: stable
+    steps:
+      - checkout
+
+      - run:
+          name: Install Dependencies
+          command: |
+            brew update
+            brew install ruby node
+            sudo gem install bundler
+            npm install -g firebase-tools
+
+      - run:
+          name: Install Flutter
+          command: |
+            git clone https://github.com/flutter/flutter.git -b $FLUTTER_VERSION
+            echo 'export PATH="$PATH:$HOME/project/flutter/bin:$HOME/.pub-cache/bin"' >> $BASH_ENV
+            source $BASH_ENV
+            flutter doctor
+
+      - restore_cache:
+          key: flutter-ios-{{ checksum "pubspec.yaml" }}
+
+      - run:
+          name: Get Flutter Dependencies
+          command: flutter pub get
+
+      - save_cache:
+          paths:
+            - ~/.pub-cache
+            - .packages
+            - ios/Pods
+            - ios/build
+          key: flutter-ios-{{ checksum "pubspec.yaml" }}
+
+      - run:
+          name: Set up Firebase Service Account
+          command: |
+            echo $GOOGLE_SERVICE_ACCOUNT_KEY | base64 --decode > $HOME/firebase_service_account.json
+            echo 'export GOOGLE_APPLICATION_CREDENTIALS=$HOME/firebase_service_account.json' >> $BASH_ENV
+            source $BASH_ENV
+
+      - run:
+          name: Build iOS App with Fastlane
+          command: |
+            cd ios
+            bundle install
+            bundle exec fastlane ios
+
 workflows:
-  build-and-test:
+  version: 2
+  build_and_deploy:
     jobs:
-      - test-node
-    # - deploy:
-    #     requires:
-    #       - test-node
+      - build-android
+#      - build-ios
