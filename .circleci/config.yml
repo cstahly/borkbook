@@ -1,44 +1,26 @@
-# .circleci/config.yml
 version: 2.1
 
 orbs:
-  flutter: circleci/flutter@2.0.0  # Use the latest version available
-  node: circleci/node@5.0.0        # For installing Firebase CLI
-  ruby: circleci/ruby@1.1.0        # For Fastlane
+  flutter: circleci/flutter@2.0.4
 
 jobs:
   build-android:
-    executor: flutter/android
+    docker:
+      - image: cimg/android:2021.10.1  # Use the latest CircleCI Android image
     environment:
-      FLUTTER_VERSION: stable
+      FLUTTER_VERSION: 'stable'
     steps:
       - checkout
 
-      - flutter/install:
-          flutter-version: 'stable'
+      - flutter/install_sdk_and_pub:
+          version: 'stable'
+          app-dir: '.'
 
-      - node/install:
-          node-version: '14.21.3'
+      - flutter/install_android_gradle_dependencies:
+          app-dir: '.'
 
-      - run:
-          name: Install Firebase CLI
-          command: npm install -g firebase-tools
-
-      - ruby/install-deps:
-          bundler-version: latest
-
-      - restore_cache:
-          keys:
-            - flutter-android-{{ checksum "pubspec.yaml" }}
-
-      - flutter/pub-get
-
-      - save_cache:
-          paths:
-            - ~/.pub-cache
-            - android/.gradle
-            - android/build
-          key: flutter-android-{{ checksum "pubspec.yaml" }}
+      - flutter/install_android_gem:
+          app-dir: '.'
 
       - run:
           name: Set up Firebase Service Account
@@ -51,7 +33,6 @@ jobs:
           name: Build Android App with Fastlane
           command: |
             cd android
-            bundle install
             bundle exec fastlane android
 
 workflows:
