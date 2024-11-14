@@ -2,7 +2,7 @@
 version: 2.1
 
 orbs:
-  flutter: circleci/flutter@2.1.0  # Use the latest version available
+  flutter: circleci/flutter@2.0.0  # Use the latest version available
   node: circleci/node@5.0.0        # For installing Firebase CLI
   ruby: circleci/ruby@1.1.0        # For Fastlane
 
