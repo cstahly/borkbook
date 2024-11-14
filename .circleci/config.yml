@@ -4,7 +4,7 @@ version: 2.1
 jobs:
   build-android:
     docker:
-      - image: circleci/android:api-30
+      - image: cimg/android:2022.08  # Next-gen CircleCI Android image
     working_directory: ~/project
     environment:
       FLUTTER_VERSION: stable
@@ -15,13 +15,19 @@ jobs:
           name: Install Dependencies
           command: |
             sudo apt-get update
-            sudo apt-get install -y git wget curl unzip ruby-full nodejs npm
+            sudo apt-get install -y ruby-full
+
+      - run:
+          name: Install Node.js and npm
+          command: |
+            curl -fsSL https://deb.nodesource.com/setup_14.x | sudo -E bash -
+            sudo apt-get install -y nodejs
 
       - run:
           name: Install Flutter
           command: |
             git clone https://github.com/flutter/flutter.git -b $FLUTTER_VERSION
-            echo 'export PATH="$PATH:$HOME/project/flutter/bin:$HOME/.pub-cache/bin"' >> $BASH_ENV
+            echo 'export PATH="$PATH:$PWD/flutter/bin:$HOME/.pub-cache/bin"' >> $BASH_ENV
             source $BASH_ENV
             flutter doctor
 
@@ -42,7 +48,7 @@ jobs:
 
       - save_cache:
           paths:
-            - ~/.pub-cache
+            - $HOME/.pub-cache
             - .packages
             - android/.gradle
             - android/build
@@ -62,63 +68,8 @@ jobs:
             bundle install
             bundle exec fastlane android
 
-  build-ios:
-    macos:
-      xcode: "14.0.0"  # Specify the Xcode version you need
-    working_directory: ~/project
-    environment:
-      FLUTTER_VERSION: stable
-    steps:
-      - checkout
-
-      - run:
-          name: Install Dependencies
-          command: |
-            brew update
-            brew install ruby node
-            sudo gem install bundler
-            npm install -g firebase-tools
-
-      - run:
-          name: Install Flutter
-          command: |
-            git clone https://github.com/flutter/flutter.git -b $FLUTTER_VERSION
-            echo 'export PATH="$PATH:$HOME/project/flutter/bin:$HOME/.pub-cache/bin"' >> $BASH_ENV
-            source $BASH_ENV
-            flutter doctor
-
-      - restore_cache:
-          key: flutter-ios-{{ checksum "pubspec.yaml" }}
-
-      - run:
-          name: Get Flutter Dependencies
-          command: flutter pub get
-
-      - save_cache:
-          paths:
-            - ~/.pub-cache
-            - .packages
-            - ios/Pods
-            - ios/build
-          key: flutter-ios-{{ checksum "pubspec.yaml" }}
-
-      - run:
-          name: Set up Firebase Service Account
-          command: |
-            echo $GOOGLE_SERVICE_ACCOUNT_KEY | base64 --decode > $HOME/firebase_service_account.json
-            echo 'export GOOGLE_APPLICATION_CREDENTIALS=$HOME/firebase_service_account.json' >> $BASH_ENV
-            source $BASH_ENV
-
-      - run:
-          name: Build iOS App with Fastlane
-          command: |
-            cd ios
-            bundle install
-            bundle exec fastlane ios
-
 workflows:
   version: 2
   build_and_deploy:
     jobs:
       - build-android
-#      - build-ios
