@@ -45,6 +45,12 @@ jobs:
           command: |
             echo "export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64" >> $BASH_ENV
             source $BASH_ENV
+
+      - run:
+          name: Debug Java Version, pre-flutter
+          command: |
+            java -version
+            echo $JAVA_HOME
             
       - flutter/install_sdk_and_pub:
           version: '3.24.3'
@@ -52,6 +58,13 @@ jobs:
           
 #      - flutter/install_android_gradle_dependencies:
 #          app-dir: './client'
+
+      - run:
+          name: Debug Java Version, post-flutter
+          command: |
+            java -version
+            echo $JAVA_HOME
+
       - run: 
           name: Set up Android dependencies
           command: |
