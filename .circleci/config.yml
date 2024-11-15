@@ -33,7 +33,7 @@ jobs:
           name: Build Android App with Fastlane
           command: |
             cd client/android
-            bundle exec fastlane android
+            fastlane android
 
 workflows:
   build_and_deploy:
