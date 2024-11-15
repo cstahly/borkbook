@@ -17,7 +17,7 @@ jobs:
           command: |
             sudo apt-get update
             sudo apt-get install -y ruby-full
-            gem install bundler
+            sudo gem install bundler
 
       - run:
           name: Install Gradle 8
