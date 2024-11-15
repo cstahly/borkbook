@@ -6,21 +6,24 @@ orbs:
 jobs:
   build-android:
     docker:
-      - image: cimg/android:2021.10.1
+      - image: cimg/android:2024.11
     environment:
       FLUTTER_VERSION: '3.24.3'
     steps:
       - checkout
 
       - run:
-          name: Install Ruby 3.x and Bundler
+          name: Add GPG Key for Google Cloud SDK
           command: |
             sudo apt-get update
-            sudo apt-get install -y software-properties-common
-            sudo apt-add-repository -y ppa:brightbox/ruby-ng
+            curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+
+      - run:
+          name: Install Ruby and Bundler
+          command: |
             sudo apt-get update
-            sudo apt-get install -y ruby3.0 ruby3.0-dev
-            gem install bundler
+            sudo apt-get install -y ruby-full
+            gem install bundler -v 2.4.22
 
       - run:
           name: Install Gradle 8
@@ -34,7 +37,18 @@ jobs:
       - flutter/install_sdk_and_pub:
           version: '3.24.3'
           app-dir: './client'
-
+          
+#      - flutter/install_android_gradle_dependencies:
+#          app-dir: './client'
+      - run: 
+          name: Set up Android dependencies
+          command: |
+            cd client/android
+            ./gradlew androidDependencies
+            
+      - flutter/install_android_gem:
+          app-dir: './client'
+          
       - run:
           name: Set up Firebase Service Account
           command: |
