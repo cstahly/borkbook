@@ -34,6 +34,13 @@ jobs:
             export PATH=$PATH:/opt/gradle/gradle-8.0/bin
             echo 'export PATH=$PATH:/opt/gradle/gradle-8.0/bin' >> $BASH_ENV
 
+      - run:
+          name: Install Java 21
+          command: |
+            sudo apt-get install -y openjdk-21-jdk
+            sudo update-alternatives --install /usr/bin/java java /usr/lib/jvm/java-21-openjdk-amd64/bin/java 1
+            sudo update-alternatives --set java /usr/lib/jvm/java-21-openjdk-amd64/bin/java
+
       - flutter/install_sdk_and_pub:
           version: '3.24.3'
           app-dir: './client'
