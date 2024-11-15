@@ -6,20 +6,30 @@ orbs:
 jobs:
   build-android:
     docker:
-      - image: cimg/android:2021.10.1  # Use the latest CircleCI Android image
+      - image: cimg/android:2021.10.1
     environment:
       FLUTTER_VERSION: '3.24.3'
     steps:
       - checkout
 
+      - run:
+          name: Install Ruby and Bundler
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y ruby-full
+            gem install bundler
+
+      - run:
+          name: Install Gradle 8
+          command: |
+            wget https://services.gradle.org/distributions/gradle-8.0-bin.zip
+            sudo mkdir /opt/gradle
+            sudo unzip -d /opt/gradle gradle-8.0-bin.zip
+            export PATH=$PATH:/opt/gradle/gradle-8.0/bin
+            echo 'export PATH=$PATH:/opt/gradle/gradle-8.0/bin' >> $BASH_ENV
+
       - flutter/install_sdk_and_pub:
           version: '3.24.3'
-          app-dir: './client'
-
-      - flutter/install_android_gradle_dependencies:
-          app-dir: './client'
-
-      - flutter/install_android_gem:
           app-dir: './client'
 
       - run:
@@ -33,7 +43,7 @@ jobs:
           name: Build Android App with Fastlane
           command: |
             cd client/android
-            fastlane android
+            bundle exec fastlane android
 
 workflows:
   build_and_deploy:
