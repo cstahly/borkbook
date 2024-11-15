@@ -87,3 +87,5 @@ client/build/
 **/ios/Runner/GeneratedPluginRegistrant.*
 client/ios/Runner.app.dSYM.zip
 client/ios/Runner.ipa
+
+**/fastlane/report.xml

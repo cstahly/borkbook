@@ -4,7 +4,7 @@ platform :android do
 
   desc "Build and distribute to Firebase App Distribution"
   lane :distribute do
-    
+
     # Set Firebase App Distribution variables
     firebase_app_id = "1:1007477594478:android:3a11682047e1049f0cc97f"
     firebase_cli_token = ENV["FIREBASE_TOKEN"]
@@ -19,7 +19,15 @@ platform :android do
       return
     end
 
-    sh("firebase appdistribution:distribute #{apk_path} --app #{firebase_app_id} --groups testers --token #{firebase_cli_token}")
+    firebase_app_distribution(
+      app: "#{firebase_app_id}",               # Your Firebase App ID
+      groups: "android",                       # Distribution group(s)
+      release_notes: "Automated release",      # Optional: Release notes
+      apk_path: apk_path,                      # Path to the APK file
+      firebase_cli_token: "#{firebase_cli_token}" # Optional: Firebase token
+    )
+
+#    sh("firebase appdistribution:distribute #{apk_path} --app #{firebase_app_id} --groups android --token #{firebase_cli_token}")
     
     # Upload to Firebase App Distribution
     # firebase_app_distribution(
