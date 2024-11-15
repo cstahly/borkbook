@@ -9,8 +9,11 @@ platform :android do
     firebase_app_id = "1:1007477594478:android:3a11682047e1049f0cc97f"
     firebase_cli_token = ENV["FIREBASE_TOKEN"]
 
+    build_number = ENV['CIRCLE_BUILD_NUM'] || "1" # Default to 1 if not in CI
+    sh("flutter build apk --build-number=#{build_number}")
+
     # Build the APK
-    sh("flutter build apk")
+    #sh("flutter build apk")
 
     # Use the environment variable for the APK output path
     apk_path = File.expand_path("../../build/app/outputs/flutter-apk/app-release.apk", Dir.pwd)

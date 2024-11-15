@@ -4,6 +4,21 @@ import '../providers/meal_provider.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:package_info_plus/package_info_plus.dart';
+
+Future<void> printAppVersion() async {
+  final packageInfo = await PackageInfo.fromPlatform();
+
+  final appName = packageInfo.appName; // e.g., "MyApp"
+  final packageName = packageInfo.packageName; // e.g., "com.example.myapp"
+  final version = packageInfo.version; // e.g., "1.0.0"
+  final buildNumber = packageInfo.buildNumber; // e.g., "42"
+
+  print('App Name: $appName');
+  print('Package Name: $packageName');
+  print('Version: $version');
+  print('Build Number: $buildNumber');
+}
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -146,87 +161,138 @@ class _HomeScreenState extends State<HomeScreen>
     return Scaffold(
       backgroundColor: _backgroundColor, // Set the background color
       drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
+        child: Column(
           children: [
-            // Redesigned Drawer Header
-            Container(
-              height: 150,
-              decoration: BoxDecoration(
-                color: _appBarColor,
-                image: DecorationImage(
-                  image:
-                      const AssetImage('assets/drawer_header_background.png'),
-                  fit: BoxFit.cover,
-                  colorFilter: ColorFilter.mode(
-                    _appBarColor.withOpacity(0.6),
-                    BlendMode.dstATop,
-                  ),
-                ),
-              ),
-              child: const Center(
-                child: Text(
-                  'BorkBook',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    shadows: [
-                      Shadow(
-                        blurRadius: 1.0,
-                        color: Colors.black45,
-                        offset: Offset(3.0, 3.0),
+            Expanded(
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: [
+                  // Redesigned Drawer Header
+                  Container(
+                    height: 150,
+                    decoration: BoxDecoration(
+                      color: _appBarColor,
+                      image: DecorationImage(
+                        image: const AssetImage(
+                            'assets/drawer_header_background.png'),
+                        fit: BoxFit.cover,
+                        colorFilter: ColorFilter.mode(
+                          _appBarColor.withOpacity(0.6),
+                          BlendMode.dstATop,
+                        ),
                       ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-            ListTile(
-              leading: Icon(Icons.pets, color: _cardColor),
-              title: InkWell(
-                onTap: () async {
-                  Navigator.of(context).pop();
-                  await sendNotification();
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: Text(
-                    "Have the dogs been fed?",
-                    style: TextStyle(
-                      fontWeight: FontWeight.normal,
-                      fontSize: 18,
-                      color: _cardColor,
+                    ),
+                    child: const Center(
+                      child: Text(
+                        'BorkBook',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          shadows: [
+                            Shadow(
+                              blurRadius: 1.0,
+                              color: Colors.black45,
+                              offset: Offset(3.0, 3.0),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
-            ),
-            ListTile(
-              leading: Icon(Icons.refresh, color: _accentColor),
-              title: InkWell(
-                onTap: () {
-                  Navigator.of(context).pop();
-                  showAlertDialog(
-                      context, "Reset the current week of dog meals");
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: Text(
-                    "Reset week",
-                    style: TextStyle(
-                      fontWeight: FontWeight.normal,
-                      fontSize: 18,
-                      color: _accentColor,
+                  const SizedBox(height: 10),
+                  ListTile(
+                    leading: Icon(Icons.pets, color: _cardColor),
+                    title: InkWell(
+                      onTap: () async {
+                        Navigator.of(context).pop();
+                        await sendNotification();
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: Text(
+                          "Have the dogs been fed?",
+                          style: TextStyle(
+                            fontWeight: FontWeight.normal,
+                            fontSize: 18,
+                            color: _cardColor,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                  ListTile(
+                    leading: Icon(Icons.refresh, color: _accentColor),
+                    title: InkWell(
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        showAlertDialog(
+                            context, "Reset the current week of dog meals");
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: Text(
+                          "Reset week",
+                          style: TextStyle(
+                            fontWeight: FontWeight.normal,
+                            fontSize: 18,
+                            color: _accentColor,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
+            ),
+            // Subtle version info box
+            FutureBuilder<PackageInfo>(
+              future: PackageInfo.fromPlatform(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      'Loading version...',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  );
+                } else if (snapshot.hasError) {
+                  return const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      'Error loading version',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  );
+                } else {
+                  final packageInfo = snapshot.data!;
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      'Version: ${packageInfo.version} (Build ${packageInfo.buildNumber})',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  );
+                }
+              },
             ),
           ],
         ),
       ),
+
       appBar: AppBar(
         title: Container(
           height: 150,
