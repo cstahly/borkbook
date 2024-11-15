@@ -16,8 +16,8 @@ jobs:
           version: '3.24.3'
           app-dir: './client'
 
-      - flutter/install_android_gradle_dependencies:
-          app-dir: './client'
+#      - flutter/install_android_gradle_dependencies:
+#          app-dir: './client'
 
       - flutter/install_android_gem:
           app-dir: './client'
